@@ -31,9 +31,14 @@ export default function Index() {
   return (
     <div className="min-h-screen felt-texture">
       {/* Header */}
-      <header className="border-b border-border/50 bg-card/30 backdrop-blur-sm">
+      <header className="border-b border-border/30 bg-card/50 backdrop-blur-sm">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <h1 className="text-2xl font-serif gold-text">Swiss Aces</h1>
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-primary rounded flex items-center justify-center">
+              <span className="text-primary-foreground font-bold text-lg">+</span>
+            </div>
+            <h1 className="text-2xl font-serif swiss-text">Swiss Aces</h1>
+          </div>
           <div className="flex items-center gap-4">
             <span className="text-sm text-muted-foreground">
               {user.email}
@@ -51,9 +56,9 @@ export default function Index() {
         <div className="max-w-4xl mx-auto">
           {/* Welcome Section */}
           <div className="text-center mb-12 animate-fade-in">
-            <h2 className="text-3xl md:text-4xl font-serif mb-4">Welcome to Swiss Aces</h2>
+            <h2 className="text-3xl md:text-4xl font-serif mb-4 text-card-foreground">Welcome to Swiss Aces</h2>
             <p className="text-muted-foreground text-lg">
-              The classic card game where timing and strategy determine victory
+              The classic Swiss card game where timing and strategy determine victory
             </p>
           </div>
 
@@ -68,9 +73,9 @@ export default function Index() {
 
           {/* Action Cards */}
           <div className="grid md:grid-cols-2 gap-6 mb-8">
-            <Card className="gold-border bg-card/80 backdrop-blur-sm hover:shadow-glow transition-shadow animate-slide-up" style={{ animationDelay: '0.1s' }}>
+            <Card className="swiss-border bg-card backdrop-blur-sm hover:shadow-glow transition-shadow animate-slide-up" style={{ animationDelay: '0.1s' }}>
               <CardHeader>
-                <CardTitle className="font-serif flex items-center gap-2">
+                <CardTitle className="font-serif flex items-center gap-2 text-card-foreground">
                   <Users className="w-5 h-5 text-primary" />
                   Play Now
                 </CardTitle>
@@ -88,9 +93,9 @@ export default function Index() {
               </CardContent>
             </Card>
 
-            <Card className="bg-card/80 backdrop-blur-sm border-border/50 animate-slide-up" style={{ animationDelay: '0.2s' }}>
+            <Card className="bg-card backdrop-blur-sm border-border animate-slide-up" style={{ animationDelay: '0.2s' }}>
               <CardHeader>
-                <CardTitle className="font-serif flex items-center gap-2">
+                <CardTitle className="font-serif flex items-center gap-2 text-card-foreground">
                   <Trophy className="w-5 h-5 text-primary" />
                   Your Stats
                 </CardTitle>
@@ -118,9 +123,9 @@ export default function Index() {
           </div>
 
           {/* Match History */}
-          <Card className="bg-card/80 backdrop-blur-sm border-border/50 animate-slide-up" style={{ animationDelay: '0.3s' }}>
+          <Card className="bg-card backdrop-blur-sm border-border animate-slide-up" style={{ animationDelay: '0.3s' }}>
             <CardHeader>
-              <CardTitle className="font-serif flex items-center gap-2">
+              <CardTitle className="font-serif flex items-center gap-2 text-card-foreground">
                 <History className="w-5 h-5 text-primary" />
                 Recent Matches
               </CardTitle>

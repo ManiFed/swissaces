@@ -14,8 +14,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ['Inter', 'sans-serif'],
-        serif: ['Playfair Display', 'serif'],
+        sans: ['Source Sans 3', 'sans-serif'],
+        serif: ['Crimson Pro', 'serif'],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -65,6 +65,10 @@ export default {
           red: "hsl(var(--suit-red))",
           black: "hsl(var(--suit-black))",
         },
+        swiss: {
+          red: "hsl(0 70% 50%)",
+          white: "hsl(0 0% 100%)",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -96,6 +100,10 @@ export default {
           from: { opacity: "0", transform: "scale(0.95)" },
           to: { opacity: "1", transform: "scale(1)" },
         },
+        "timer-pulse": {
+          "0%, 100%": { opacity: "1" },
+          "50%": { opacity: "0.5" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -103,6 +111,7 @@ export default {
         "fade-in": "fade-in 0.5s ease-out",
         "slide-up": "slide-up 0.5s ease-out",
         "scale-in": "scale-in 0.3s ease-out",
+        "timer-pulse": "timer-pulse 1s ease-in-out infinite",
       },
     },
   },

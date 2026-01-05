@@ -148,13 +148,18 @@ export default function Auth() {
 
       <div className="w-full max-w-md animate-scale-in">
         <div className="text-center mb-8">
-          <h1 className="text-4xl md:text-5xl font-serif gold-text mb-2">Swiss Aces</h1>
+          <div className="flex items-center justify-center gap-3 mb-2">
+            <div className="w-10 h-10 bg-primary rounded flex items-center justify-center">
+              <span className="text-primary-foreground font-bold text-xl">+</span>
+            </div>
+            <h1 className="text-4xl md:text-5xl font-serif swiss-text">Swiss Aces</h1>
+          </div>
           <p className="text-muted-foreground">The classic card game, online</p>
         </div>
 
-        <Card className="gold-border bg-card/80 backdrop-blur-sm">
+        <Card className="swiss-border bg-card/90 backdrop-blur-sm">
           <CardHeader className="text-center pb-4">
-            <CardTitle className="font-serif text-2xl">Welcome</CardTitle>
+            <CardTitle className="font-serif text-2xl text-card-foreground">Welcome</CardTitle>
             <CardDescription>Sign in to play or create a new account</CardDescription>
           </CardHeader>
           <CardContent>

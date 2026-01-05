@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { Play, HandMetal, ArrowRight } from 'lucide-react';
+import { Play, HandMetal } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface TurnActionsProps {
@@ -25,7 +25,7 @@ export function TurnActions({
 }: TurnActionsProps) {
   if (!isMyTurn) {
     return (
-      <div className="flex items-center justify-center py-4">
+      <div className="flex items-center justify-center py-4 px-6 bg-card/80 rounded-xl border border-border/50">
         <div className="text-muted-foreground text-sm flex items-center gap-2">
           <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
           Waiting for other player...
@@ -35,8 +35,8 @@ export function TurnActions({
   }
 
   return (
-    <div className="flex flex-col gap-3 p-4 bg-card/60 rounded-xl">
-      <div className="text-sm font-medium text-center text-primary">
+    <div className="flex flex-col gap-3 p-4 bg-card/80 rounded-xl border border-border/50">
+      <div className="text-sm font-semibold text-center text-primary">
         Your Turn
       </div>
       

@@ -81,9 +81,11 @@ export default function Game() {
     myPlayer,
     isProcessing,
     toggleCardSelection,
+    selectAllOfRank,
     playCards,
     useSpecialCard,
     acceptPile,
+    handleTimeout,
     canPlaySelected,
   } = useGameState({
     gameId: gameId || '',
@@ -92,7 +94,7 @@ export default function Game() {
 
   if (authLoading || loadingPlayers) {
     return (
-      <div className="min-h-screen felt-texture flex items-center justify-center">
+      <div className="h-screen felt-texture flex items-center justify-center overflow-hidden">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
@@ -100,8 +102,8 @@ export default function Game() {
 
   if (!gameState) {
     return (
-      <div className="min-h-screen felt-texture flex items-center justify-center">
-        <div className="text-center">
+      <div className="h-screen felt-texture flex items-center justify-center overflow-hidden">
+        <div className="text-center p-6 bg-card/80 rounded-xl border border-border">
           <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto mb-4" />
           <p className="text-muted-foreground">Setting up the game...</p>
         </div>
@@ -118,9 +120,11 @@ export default function Game() {
       canPlaySelected={canPlaySelected}
       isProcessing={isProcessing}
       onCardClick={toggleCardSelection}
+      onSelectAllOfRank={selectAllOfRank}
       onPlayCards={playCards}
       onAcceptPile={acceptPile}
       onUseSpecialCard={useSpecialCard}
+      onTimeout={handleTimeout}
     />
   );
 }

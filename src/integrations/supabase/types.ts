@@ -68,6 +68,68 @@ export type Database = {
           },
         ]
       }
+      game_states: {
+        Row: {
+          created_at: string
+          current_player_index: number
+          game_id: string
+          id: string
+          last_action: Json | null
+          minimum_required: number
+          pile: Json
+          pile_count: number
+          players_state: Json
+          special_card_pool: Json
+          status: string
+          turn_number: number
+          turn_started_at: string | null
+          updated_at: string
+          winner_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          current_player_index?: number
+          game_id: string
+          id?: string
+          last_action?: Json | null
+          minimum_required?: number
+          pile?: Json
+          pile_count?: number
+          players_state?: Json
+          special_card_pool?: Json
+          status?: string
+          turn_number?: number
+          turn_started_at?: string | null
+          updated_at?: string
+          winner_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          current_player_index?: number
+          game_id?: string
+          id?: string
+          last_action?: Json | null
+          minimum_required?: number
+          pile?: Json
+          pile_count?: number
+          players_state?: Json
+          special_card_pool?: Json
+          status?: string
+          turn_number?: number
+          turn_started_at?: string | null
+          updated_at?: string
+          winner_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "game_states_game_id_fkey"
+            columns: ["game_id"]
+            isOneToOne: true
+            referencedRelation: "games"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       games: {
         Row: {
           completed_at: string | null
