@@ -1,1 +1,4 @@
 project_id = "qnkkyjhojxztvgmovepm"
+
+[functions.game-logic]
+verify_jwt = true

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Card, Rank, RANKS_ORDER } from '@/types/game';
 import { PlayingCard } from '@/components/PlayingCard';
 import { groupCardsByRank } from '@/hooks/useGameState';
@@ -7,6 +8,7 @@ interface PlayerHandProps {
   cards: Card[];
   selectedCards: Card[];
   onCardClick: (card: Card) => void;
+  onPlayCards?: (cards: Card[]) => void;
   disabled?: boolean;
   minimumRequired: number;
 }
@@ -14,10 +16,12 @@ interface PlayerHandProps {
 export function PlayerHand({ 
   cards, 
   selectedCards, 
-  onCardClick, 
+  onCardClick,
+  onPlayCards,
   disabled,
   minimumRequired 
 }: PlayerHandProps) {
+  const [draggedCard, setDraggedCard] = useState<Card | null>(null);
   const grouped = groupCardsByRank(cards);
   const jokers = cards.filter(c => c.isJoker);
   
@@ -31,26 +35,36 @@ export function PlayerHand({
     return groupCards.length >= minimumRequired;
   };
 
+  const handleDragStart = (card: Card) => (e: React.DragEvent) => {
+    setDraggedCard(card);
+    e.dataTransfer.setData('card', JSON.stringify(card));
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragEnd = () => {
+    setDraggedCard(null);
+  };
+
   return (
     <div className="w-full">
-      <div className="flex flex-wrap justify-center gap-1 md:gap-2 p-4 bg-card/40 rounded-xl backdrop-blur-sm">
+      <div className="flex flex-wrap justify-center gap-1 p-2 bg-card/40 rounded-xl backdrop-blur-sm max-h-[200px] overflow-y-auto">
         {/* Grouped cards by rank */}
         {sortedRanks.map((rank) => {
           const groupCards = grouped.get(rank) || [];
           const playable = canPlayGroup(groupCards);
           
           return (
-            <div key={rank} className="flex flex-col items-center gap-1">
+            <div key={rank} className="flex flex-col items-center gap-0.5">
               {/* Rank indicator */}
               <div className={cn(
-                "text-xs font-medium px-2 py-0.5 rounded",
+                "text-[10px] font-medium px-1.5 py-0.5 rounded",
                 playable ? "bg-primary/20 text-primary" : "bg-muted/50 text-muted-foreground"
               )}>
-                {groupCards.length}x {rank}
+                {groupCards.length}× {rank}
               </div>
               
               {/* Cards in group */}
-              <div className="flex -space-x-6 md:-space-x-4">
+              <div className="flex -space-x-6">
                 {groupCards.map((card) => (
                   <PlayingCard
                     key={card.id}
@@ -59,7 +73,10 @@ export function PlayerHand({
                     size="md"
                     selected={selectedCards.some(c => c.id === card.id)}
                     disabled={disabled}
+                    draggable={!disabled}
                     onClick={() => onCardClick(card)}
+                    onDragStart={handleDragStart(card)}
+                    onDragEnd={handleDragEnd}
                   />
                 ))}
               </div>
@@ -69,11 +86,11 @@ export function PlayerHand({
         
         {/* Jokers */}
         {jokers.length > 0 && (
-          <div className="flex flex-col items-center gap-1">
-            <div className="text-xs font-medium px-2 py-0.5 rounded bg-primary/20 text-primary">
+          <div className="flex flex-col items-center gap-0.5">
+            <div className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-primary/20 text-primary">
               Joker
             </div>
-            <div className="flex -space-x-4">
+            <div className="flex -space-x-6">
               {jokers.map((card) => (
                 <PlayingCard
                   key={card.id}
@@ -83,7 +100,10 @@ export function PlayerHand({
                   size="md"
                   selected={selectedCards.some(c => c.id === card.id)}
                   disabled={disabled}
+                  draggable={!disabled}
                   onClick={() => onCardClick(card)}
+                  onDragStart={handleDragStart(card)}
+                  onDragEnd={handleDragEnd}
                 />
               ))}
             </div>
@@ -91,7 +111,7 @@ export function PlayerHand({
         )}
         
         {cards.length === 0 && (
-          <div className="text-muted-foreground text-center py-8">
+          <div className="text-muted-foreground text-center py-4">
             No cards in hand
           </div>
         )}
