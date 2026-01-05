@@ -1,96 +1,106 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* Swiss Aces - Classic Card Game Design System */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Classic card game palette - rich greens and golds */
+    --background: 145 30% 12%;
+    --foreground: 45 30% 95%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card: 145 25% 18%;
+    --card-foreground: 45 30% 95%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover: 145 25% 15%;
+    --popover-foreground: 45 30% 95%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 45 85% 55%;
+    --primary-foreground: 145 30% 10%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 145 20% 25%;
+    --secondary-foreground: 45 30% 90%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 145 15% 22%;
+    --muted-foreground: 45 15% 65%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 0 75% 55%;
+    --accent-foreground: 45 30% 95%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 65% 50%;
+    --destructive-foreground: 45 30% 95%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 145 20% 28%;
+    --input: 145 20% 22%;
+    --ring: 45 85% 55%;
 
     --radius: 0.5rem;
 
-    --sidebar-background: 0 0% 98%;
+    /* Card suit colors */
+    --suit-red: 0 75% 55%;
+    --suit-black: 0 0% 15%;
+    
+    /* Felt texture gradient */
+    --felt-gradient: linear-gradient(145deg, hsl(145 30% 14%) 0%, hsl(145 30% 10%) 100%);
+    
+    /* Gold accent gradient */
+    --gold-gradient: linear-gradient(135deg, hsl(45 85% 55%) 0%, hsl(35 90% 45%) 100%);
+    
+    /* Shadows */
+    --shadow-card: 0 4px 20px -4px hsla(0 0% 0% / 0.5);
+    --shadow-glow: 0 0 30px hsla(45 85% 55% / 0.15);
 
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-background: 145 30% 10%;
+    --sidebar-foreground: 45 30% 90%;
+    --sidebar-primary: 45 85% 55%;
+    --sidebar-primary-foreground: 145 30% 10%;
+    --sidebar-accent: 145 20% 20%;
+    --sidebar-accent-foreground: 45 30% 90%;
+    --sidebar-border: 145 20% 25%;
+    --sidebar-ring: 45 85% 55%;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    /* Dark mode uses same theme for card game */
+    --background: 145 30% 8%;
+    --foreground: 45 30% 95%;
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 145 25% 12%;
+    --card-foreground: 45 30% 95%;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 145 25% 10%;
+    --popover-foreground: 45 30% 95%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 45 85% 55%;
+    --primary-foreground: 145 30% 10%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 145 20% 18%;
+    --secondary-foreground: 45 30% 90%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 145 15% 16%;
+    --muted-foreground: 45 15% 60%;
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 0 75% 55%;
+    --accent-foreground: 45 30% 95%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 65% 50%;
+    --destructive-foreground: 45 30% 95%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --border: 145 20% 22%;
+    --input: 145 20% 16%;
+    --ring: 45 85% 55%;
+
+    --sidebar-background: 145 30% 6%;
+    --sidebar-foreground: 45 30% 90%;
+    --sidebar-primary: 45 85% 55%;
+    --sidebar-primary-foreground: 145 30% 10%;
+    --sidebar-accent: 145 20% 14%;
+    --sidebar-accent-foreground: 45 30% 90%;
+    --sidebar-border: 145 20% 18%;
+    --sidebar-ring: 45 85% 55%;
   }
 }
 
@@ -100,6 +110,72 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'Inter', sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Playfair Display', serif;
+  }
+}
+
+@layer components {
+  .felt-texture {
+    background: 
+      radial-gradient(ellipse at 50% 0%, hsla(145 30% 20% / 0.3) 0%, transparent 60%),
+      linear-gradient(145deg, hsl(145 30% 14%) 0%, hsl(145 30% 10%) 100%);
+  }
+
+  .card-shadow {
+    box-shadow: var(--shadow-card);
+  }
+
+  .gold-text {
+    background: var(--gold-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .gold-border {
+    border: 1px solid hsl(var(--primary));
+    box-shadow: 
+      inset 0 1px 0 0 hsla(45 85% 70% / 0.3),
+      0 0 20px -5px hsla(45 85% 55% / 0.2);
+  }
+}
+
+@layer utilities {
+  .animate-shimmer {
+    animation: shimmer 2s linear infinite;
+    background: linear-gradient(
+      90deg,
+      hsla(45 85% 55% / 0) 0%,
+      hsla(45 85% 55% / 0.15) 50%,
+      hsla(45 85% 55% / 0) 100%
+    );
+    background-size: 200% 100%;
+  }
+
+  @keyframes shimmer {
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
+  }
+
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
   }
 }
