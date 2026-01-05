@@ -1,9 +1,10 @@
-import { GameState, PlayerState } from '@/types/game';
+import { GameState, PlayerState, Rank } from '@/types/game';
 import { CentralPile } from './CentralPile';
 import { OpponentPanel } from './OpponentPanel';
 import { PlayerHand } from './PlayerHand';
 import { SpecialCardPool } from './SpecialCardPool';
 import { TurnActions } from './TurnActions';
+import { TurnTimer } from './TurnTimer';
 import { Card } from '@/types/game';
 import { Button } from '@/components/ui/button';
 import { Trophy, ArrowLeft } from 'lucide-react';
@@ -17,9 +18,11 @@ interface GameBoardProps {
   canPlaySelected: boolean;
   isProcessing: boolean;
   onCardClick: (card: Card) => void;
+  onSelectAllOfRank?: (rank: Rank) => void;
   onPlayCards: () => void;
   onAcceptPile: () => void;
   onUseSpecialCard: (card: Card) => void;
+  onTimeout?: () => void;
 }
 
 export function GameBoard({
@@ -30,9 +33,11 @@ export function GameBoard({
   canPlaySelected,
   isProcessing,
   onCardClick,
+  onSelectAllOfRank,
   onPlayCards,
   onAcceptPile,
   onUseSpecialCard,
+  onTimeout,
 }: GameBoardProps) {
   const navigate = useNavigate();
   
@@ -54,10 +59,10 @@ export function GameBoard({
     const isWinner = winner?.id === myPlayer?.id;
     
     return (
-      <div className="min-h-screen felt-texture flex items-center justify-center">
-        <div className="text-center p-8 bg-card/80 rounded-2xl backdrop-blur-sm max-w-md">
+      <div className="h-screen felt-texture flex items-center justify-center overflow-hidden">
+        <div className="text-center p-8 bg-card/90 rounded-2xl backdrop-blur-sm max-w-md border border-border shadow-xl">
           <Trophy className={`w-20 h-20 mx-auto mb-4 ${isWinner ? 'text-primary' : 'text-muted-foreground'}`} />
-          <h2 className="text-3xl font-serif mb-2 gold-text">
+          <h2 className="text-3xl font-serif mb-2 swiss-text">
             {isWinner ? 'Victory!' : 'Game Over'}
           </h2>
           <p className="text-lg text-muted-foreground mb-6">
@@ -74,8 +79,8 @@ export function GameBoard({
 
   return (
     <div className="h-screen felt-texture flex flex-col overflow-hidden">
-      {/* Top area - Opponents */}
-      <div className="flex justify-center items-start gap-4 p-2 shrink-0">
+      {/* Top area - Opponents and Timer */}
+      <div className="flex justify-center items-start gap-4 p-3 shrink-0">
         {opponents.map((opponent, index) => {
           const position = getOpponentPosition(index, opponents.length);
           if (position !== 'top') return null;
@@ -88,12 +93,22 @@ export function GameBoard({
             />
           );
         })}
+        
+        {/* Turn timer */}
+        {onTimeout && (
+          <TurnTimer
+            isActive={isMyTurn && !isProcessing}
+            duration={30}
+            onTimeout={onTimeout}
+            turnNumber={gameState.turnNumber}
+          />
+        )}
       </div>
 
       {/* Middle area - Side opponents + Central pile */}
-      <div className="flex-1 flex items-center justify-center gap-4 px-2 min-h-0">
+      <div className="flex-1 flex items-center justify-center gap-6 px-4 min-h-0">
         {/* Left opponent */}
-        <div className="w-32 shrink-0">
+        <div className="w-36 shrink-0">
           {opponents.map((opponent, index) => {
             const position = getOpponentPosition(index, opponents.length);
             if (position !== 'left') return null;
@@ -118,7 +133,7 @@ export function GameBoard({
         </div>
 
         {/* Right opponent */}
-        <div className="w-32 shrink-0">
+        <div className="w-36 shrink-0">
           {opponents.map((opponent, index) => {
             const position = getOpponentPosition(index, opponents.length);
             if (position !== 'right') return null;
@@ -135,9 +150,9 @@ export function GameBoard({
       </div>
 
       {/* Bottom area - Player's stuff */}
-      <div className="p-2 space-y-2 shrink-0">
+      <div className="p-3 space-y-2 shrink-0 bg-gradient-to-t from-black/20 to-transparent">
         {/* Actions and special cards row */}
-        <div className="flex flex-row gap-2 justify-center items-stretch">
+        <div className="flex flex-row gap-3 justify-center items-stretch">
           {/* Special card pool */}
           <SpecialCardPool
             poolCount={gameState.specialCardPool.length}
@@ -165,6 +180,7 @@ export function GameBoard({
             cards={myPlayer.hand}
             selectedCards={selectedCards}
             onCardClick={onCardClick}
+            onSelectAllOfRank={onSelectAllOfRank}
             disabled={!isMyTurn || isProcessing}
             minimumRequired={gameState.minimumRequired}
           />

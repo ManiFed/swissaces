@@ -1,7 +1,7 @@
 import { PlayerState } from '@/types/game';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Bot, Crown, User } from 'lucide-react';
+import { Bot, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface OpponentPanelProps {
@@ -13,10 +13,10 @@ interface OpponentPanelProps {
 export function OpponentPanel({ player, isCurrentTurn, position }: OpponentPanelProps) {
   return (
     <div className={cn(
-      "flex items-center gap-3 p-3 rounded-xl transition-all",
+      "flex items-center gap-3 p-3 rounded-xl transition-all border",
       isCurrentTurn 
-        ? "bg-primary/20 ring-2 ring-primary shadow-glow" 
-        : "bg-card/60",
+        ? "bg-primary/10 border-primary shadow-glow" 
+        : "bg-card/80 border-border/50",
       position === 'top' && "flex-col",
     )}>
       {/* Avatar */}
@@ -25,7 +25,10 @@ export function OpponentPanel({ player, isCurrentTurn, position }: OpponentPanel
           "border-2",
           isCurrentTurn ? "border-primary" : "border-border"
         )}>
-          <AvatarFallback className={player.isBot ? 'bg-secondary' : 'bg-primary/20'}>
+          <AvatarFallback className={cn(
+            player.isBot ? 'bg-secondary' : 'bg-primary/10',
+            'text-foreground'
+          )}>
             {player.isBot ? (
               <Bot className="w-5 h-5" />
             ) : (
@@ -44,26 +47,26 @@ export function OpponentPanel({ player, isCurrentTurn, position }: OpponentPanel
         position === 'top' && "items-center"
       )}>
         <div className="flex items-center gap-1.5">
-          <span className="font-medium text-sm truncate max-w-[100px]">
+          <span className="font-medium text-sm truncate max-w-[100px] text-card-foreground">
             {player.name}
           </span>
           {player.isBot && (
-            <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
+            <Badge variant="secondary" className="text-[10px] px-1.5 py-0 bg-secondary text-secondary-foreground">
               BOT
             </Badge>
           )}
         </div>
         
         {/* Card count */}
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+        <div className="flex items-center gap-2 text-xs">
           <span className={cn(
             "font-mono",
-            player.hand.length === 0 && "text-green-500 font-bold"
+            player.hand.length === 0 ? "text-green-600 font-bold" : "text-muted-foreground"
           )}>
             {player.hand.length} cards
           </span>
           {player.specialCards.length > 0 && (
-            <span className="text-primary">
+            <span className="text-primary font-medium">
               +{player.specialCards.length} special
             </span>
           )}
@@ -73,7 +76,7 @@ export function OpponentPanel({ player, isCurrentTurn, position }: OpponentPanel
       {/* Turn indicator */}
       {isCurrentTurn && (
         <div className={cn(
-          "text-xs text-primary font-medium",
+          "text-xs text-primary font-semibold",
           position === 'top' ? "order-first" : "ml-auto"
         )}>
           Playing...
