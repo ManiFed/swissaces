@@ -73,9 +73,9 @@ export function GameBoard({
   }
 
   return (
-    <div className="min-h-screen felt-texture flex flex-col">
+    <div className="h-screen felt-texture flex flex-col overflow-hidden">
       {/* Top area - Opponents */}
-      <div className="flex justify-center items-start gap-4 p-4">
+      <div className="flex justify-center items-start gap-4 p-2 shrink-0">
         {opponents.map((opponent, index) => {
           const position = getOpponentPosition(index, opponents.length);
           if (position !== 'top') return null;
@@ -91,9 +91,9 @@ export function GameBoard({
       </div>
 
       {/* Middle area - Side opponents + Central pile */}
-      <div className="flex-1 flex items-center justify-center gap-8 px-4">
+      <div className="flex-1 flex items-center justify-center gap-4 px-2 min-h-0">
         {/* Left opponent */}
-        <div className="w-40">
+        <div className="w-32 shrink-0">
           {opponents.map((opponent, index) => {
             const position = getOpponentPosition(index, opponents.length);
             if (position !== 'left') return null;
@@ -118,7 +118,7 @@ export function GameBoard({
         </div>
 
         {/* Right opponent */}
-        <div className="w-40">
+        <div className="w-32 shrink-0">
           {opponents.map((opponent, index) => {
             const position = getOpponentPosition(index, opponents.length);
             if (position !== 'right') return null;
@@ -135,9 +135,9 @@ export function GameBoard({
       </div>
 
       {/* Bottom area - Player's stuff */}
-      <div className="p-4 space-y-4">
+      <div className="p-2 space-y-2 shrink-0">
         {/* Actions and special cards row */}
-        <div className="flex flex-col md:flex-row gap-4 justify-center items-stretch">
+        <div className="flex flex-row gap-2 justify-center items-stretch">
           {/* Special card pool */}
           <SpecialCardPool
             poolCount={gameState.specialCardPool.length}

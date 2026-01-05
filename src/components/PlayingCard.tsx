@@ -1,4 +1,5 @@
 import { cn } from '@/lib/utils';
+import { useState } from 'react';
 
 interface PlayingCardProps {
   suit?: 'hearts' | 'diamonds' | 'clubs' | 'spades';
@@ -8,7 +9,10 @@ interface PlayingCardProps {
   size?: 'xs' | 'sm' | 'md' | 'lg';
   selected?: boolean;
   disabled?: boolean;
+  draggable?: boolean;
   onClick?: () => void;
+  onDragStart?: (e: React.DragEvent) => void;
+  onDragEnd?: (e: React.DragEvent) => void;
   className?: string;
 }
 
@@ -20,17 +24,17 @@ const suitSymbols = {
 };
 
 const suitColors = {
-  hearts: 'text-suit-red',
-  diamonds: 'text-suit-red',
-  clubs: 'text-foreground',
-  spades: 'text-foreground',
+  hearts: 'text-red-600',
+  diamonds: 'text-red-600',
+  clubs: 'text-stone-900',
+  spades: 'text-stone-900',
 };
 
 const sizes = {
-  xs: 'w-8 h-12 text-[10px]',
-  sm: 'w-10 h-14 text-xs',
-  md: 'w-16 h-24 text-base',
-  lg: 'w-24 h-36 text-xl',
+  xs: { card: 'w-8 h-12', rank: 'text-[8px]', center: 'text-sm' },
+  sm: { card: 'w-10 h-14', rank: 'text-[10px]', center: 'text-base' },
+  md: { card: 'w-14 h-20', rank: 'text-xs', center: 'text-xl' },
+  lg: { card: 'w-20 h-28', rank: 'text-sm', center: 'text-2xl' },
 };
 
 export function PlayingCard({ 
@@ -41,24 +45,41 @@ export function PlayingCard({
   size = 'md',
   selected = false,
   disabled = false,
+  draggable = false,
   onClick,
+  onDragStart,
+  onDragEnd,
   className 
 }: PlayingCardProps) {
+  const [isDragging, setIsDragging] = useState(false);
+  const sizeConfig = sizes[size];
+
+  const handleDragStart = (e: React.DragEvent) => {
+    if (!draggable || disabled) return;
+    setIsDragging(true);
+    onDragStart?.(e);
+  };
+
+  const handleDragEnd = (e: React.DragEvent) => {
+    setIsDragging(false);
+    onDragEnd?.(e);
+  };
+
   if (faceDown) {
     return (
       <div 
         className={cn(
           'rounded-lg bg-primary/20 border-2 border-primary/40',
-          'flex items-center justify-center',
+          'flex items-center justify-center flex-shrink-0',
           'shadow-card transition-all duration-200',
-          sizes[size],
+          sizeConfig.card,
           onClick && !disabled && 'cursor-pointer hover:scale-105',
           className
         )}
         onClick={!disabled ? onClick : undefined}
       >
         <div className="w-3/4 h-3/4 rounded border border-primary/30 bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
-          <span className="font-serif text-primary/50 text-lg">♠♥</span>
+          <span className="font-serif text-primary/50 text-xs">♠♥</span>
         </div>
       </div>
     );
@@ -68,19 +89,23 @@ export function PlayingCard({
     return (
       <div 
         className={cn(
-          'rounded-lg bg-foreground border-2 transition-all duration-200',
-          'flex flex-col justify-center items-center p-1.5',
+          'rounded-lg bg-white border-2 transition-all duration-200 flex-shrink-0',
+          'flex flex-col justify-center items-center',
           'shadow-card',
-          sizes[size],
-          selected ? 'border-primary ring-2 ring-primary/50 -translate-y-2' : 'border-border/50',
+          sizeConfig.card,
+          selected ? 'border-primary ring-2 ring-primary/50 -translate-y-2' : 'border-stone-300',
           onClick && !disabled && 'cursor-pointer hover:-translate-y-1',
           disabled && 'opacity-50 cursor-not-allowed',
+          isDragging && 'opacity-50 scale-105',
           className
         )}
+        draggable={draggable && !disabled}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
         onClick={!disabled ? onClick : undefined}
       >
-        <span className="text-2xl">🃏</span>
-        <span className="text-xs font-bold text-primary">JOKER</span>
+        <span className={sizeConfig.center}>🃏</span>
+        <span className={cn(sizeConfig.rank, 'font-bold text-primary')}>JOKER</span>
       </div>
     );
   }
@@ -88,32 +113,36 @@ export function PlayingCard({
   return (
     <div 
       className={cn(
-        'rounded-lg bg-foreground border-2 transition-all duration-200',
-        'flex flex-col justify-between p-1.5',
+        'rounded-lg bg-white border-2 transition-all duration-200 flex-shrink-0',
+        'flex flex-col justify-between p-1',
         'shadow-card',
-        sizes[size],
-        selected ? 'border-primary ring-2 ring-primary/50 -translate-y-2' : 'border-border/50',
+        sizeConfig.card,
+        selected ? 'border-primary ring-2 ring-primary/50 -translate-y-2' : 'border-stone-300',
         onClick && !disabled && 'cursor-pointer hover:-translate-y-1',
         disabled && 'opacity-50 cursor-not-allowed',
+        isDragging && 'opacity-50 scale-105',
         className
       )}
+      draggable={draggable && !disabled}
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
       onClick={!disabled ? onClick : undefined}
     >
-      <div className={cn('flex items-center gap-0.5', suitColors[suit])}>
-        <span className="font-bold leading-none">{rank}</span>
-        <span className="leading-none">{suitSymbols[suit]}</span>
+      {/* Top left corner */}
+      <div className={cn('flex flex-col items-start leading-none', suitColors[suit])}>
+        <span className={cn(sizeConfig.rank, 'font-bold')}>{rank}</span>
+        <span className={sizeConfig.rank}>{suitSymbols[suit]}</span>
       </div>
-      <div className={cn('flex justify-center items-center flex-1', suitColors[suit])}>
-        <span className={cn(
-          size === 'xs' && 'text-lg',
-          size === 'sm' && 'text-xl',
-          size === 'md' && 'text-2xl',
-          size === 'lg' && 'text-4xl',
-        )}>{suitSymbols[suit]}</span>
+      
+      {/* Center suit */}
+      <div className={cn('flex justify-center items-center', suitColors[suit])}>
+        <span className={sizeConfig.center}>{suitSymbols[suit]}</span>
       </div>
-      <div className={cn('flex items-center gap-0.5 rotate-180', suitColors[suit])}>
-        <span className="font-bold leading-none">{rank}</span>
-        <span className="leading-none">{suitSymbols[suit]}</span>
+      
+      {/* Bottom right corner (rotated) */}
+      <div className={cn('flex flex-col items-end leading-none rotate-180', suitColors[suit])}>
+        <span className={cn(sizeConfig.rank, 'font-bold')}>{rank}</span>
+        <span className={sizeConfig.rank}>{suitSymbols[suit]}</span>
       </div>
     </div>
   );
