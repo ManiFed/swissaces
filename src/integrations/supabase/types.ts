@@ -14,6 +14,104 @@ export type Database = {
   }
   public: {
     Tables: {
+      game_players: {
+        Row: {
+          bot_difficulty: string | null
+          bot_name: string | null
+          game_id: string
+          id: string
+          is_bot: boolean
+          is_host: boolean
+          is_ready: boolean
+          joined_at: string
+          player_id: string | null
+          seat_position: number
+        }
+        Insert: {
+          bot_difficulty?: string | null
+          bot_name?: string | null
+          game_id: string
+          id?: string
+          is_bot?: boolean
+          is_host?: boolean
+          is_ready?: boolean
+          joined_at?: string
+          player_id?: string | null
+          seat_position: number
+        }
+        Update: {
+          bot_difficulty?: string | null
+          bot_name?: string | null
+          game_id?: string
+          id?: string
+          is_bot?: boolean
+          is_host?: boolean
+          is_ready?: boolean
+          joined_at?: string
+          player_id?: string | null
+          seat_position?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "game_players_game_id_fkey"
+            columns: ["game_id"]
+            isOneToOne: false
+            referencedRelation: "games"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "game_players_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      games: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          host_id: string
+          id: string
+          invite_code: string | null
+          is_public: boolean
+          max_players: number
+          started_at: string | null
+          status: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          host_id: string
+          id?: string
+          invite_code?: string | null
+          is_public?: boolean
+          max_players?: number
+          started_at?: string | null
+          status?: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          host_id?: string
+          id?: string
+          invite_code?: string | null
+          is_public?: boolean
+          max_players?: number
+          started_at?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "games_host_id_fkey"
+            columns: ["host_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       match_history: {
         Row: {
           game_id: string
@@ -87,7 +185,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      generate_invite_code: { Args: never; Returns: string }
     }
     Enums: {
       [_ in never]: never

@@ -79,10 +79,10 @@ export default function Index() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
-                <Button className="w-full" size="lg">
+                <Button className="w-full" size="lg" onClick={() => navigate('/lobby')}>
                   Create Private Game
                 </Button>
-                <Button variant="secondary" className="w-full" size="lg">
+                <Button variant="secondary" className="w-full" size="lg" onClick={() => navigate('/lobby')}>
                   Join Public Lobby
                 </Button>
               </CardContent>
