@@ -23,6 +23,9 @@ interface GameBoardProps {
   onAcceptPile: () => void;
   onUseSpecialCard: (card: Card) => void;
   onTimeout?: () => void;
+  mustGiveCardsForOverflow?: boolean;
+  overflowPenaltyCount?: number;
+  onGiveCardsForOverflow?: (cards: Card[]) => void;
 }
 
 export function GameBoard({
@@ -38,6 +41,9 @@ export function GameBoard({
   onAcceptPile,
   onUseSpecialCard,
   onTimeout,
+  mustGiveCardsForOverflow,
+  overflowPenaltyCount,
+  onGiveCardsForOverflow,
 }: GameBoardProps) {
   const navigate = useNavigate();
   
@@ -171,6 +177,9 @@ export function GameBoard({
             onPlayCards={onPlayCards}
             onAcceptPile={onAcceptPile}
             isProcessing={isProcessing}
+            mustGiveCardsForOverflow={mustGiveCardsForOverflow}
+            overflowPenaltyCount={overflowPenaltyCount}
+            onGiveCardsForOverflow={onGiveCardsForOverflow ? () => onGiveCardsForOverflow(selectedCards) : undefined}
           />
         </div>
 
@@ -181,7 +190,7 @@ export function GameBoard({
             selectedCards={selectedCards}
             onCardClick={onCardClick}
             onSelectAllOfRank={onSelectAllOfRank}
-            disabled={!isMyTurn || isProcessing}
+            disabled={(!isMyTurn && !mustGiveCardsForOverflow) || isProcessing}
             minimumRequired={gameState.minimumRequired}
           />
         )}

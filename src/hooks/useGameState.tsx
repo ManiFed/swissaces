@@ -330,45 +330,10 @@ export function useGameState({ gameId, players }: UseGameStateProps) {
     }
   }, [isMyTurn, isProcessing, myPlayer, selectedCards]);
 
-  // Handle pile overflow
-  const handlePileOverflow = (
-    newPileCount: number, 
-    newPile: Card[], 
-    players: PlayerState[], 
-    currentPlayerIdx: number
-  ): { 
-    finalPile: Card[]; 
-    finalPileCount: number; 
-    updatedPlayers: PlayerState[];
-    cardsTransferred: number;
-  } => {
-    if (newPileCount <= PILE_OVERFLOW_LIMIT) {
-      return { 
-        finalPile: newPile, 
-        finalPileCount: newPileCount, 
-        updatedPlayers: players,
-        cardsTransferred: 0
-      };
-    }
-    
-    // Soft overflow: the player who caused overflow receives penalty cards
-    const excessCount = newPileCount - PILE_OVERFLOW_LIMIT;
-    
-    // The pile resets, and the current player receives X cards from pile
-    const updatedPlayers = [...players];
-    const cardsToGive = newPile.slice(-excessCount);
-    
-    updatedPlayers[currentPlayerIdx] = {
-      ...updatedPlayers[currentPlayerIdx],
-      hand: [...updatedPlayers[currentPlayerIdx].hand, ...cardsToGive],
-    };
-    
-    return {
-      finalPile: [],
-      finalPileCount: 0,
-      updatedPlayers,
-      cardsTransferred: excessCount
-    };
+// Check if pile is in overflow state (returns number of penalty cards owed)
+  const getOverflowPenalty = (pileCount: number): number => {
+    if (pileCount <= PILE_OVERFLOW_LIMIT) return 0;
+    return pileCount - PILE_OVERFLOW_LIMIT;
   };
 
   // Sync game state to database
@@ -423,35 +388,37 @@ export function useGameState({ gameId, players }: UseGameStateProps) {
     const newPileCount = gameState.pileCount + selectedCards.length;
     const newMinimum = calculateNewMinimum(selectedCards.length, gameState.minimumRequired);
     
-    const { finalPile, finalPileCount, updatedPlayers, cardsTransferred } = handlePileOverflow(
-      newPileCount,
-      newPile,
-      newPlayers,
-      currentIdx
-    );
+    // Check for overflow - now we track it as pending instead of auto-resolving
+    const overflowPenalty = getOverflowPenalty(newPileCount);
     
-    if (cardsTransferred > 0) {
-      toast({
-        title: "Pile Overflow!",
-        description: `You receive ${cardsTransferred} card${cardsTransferred > 1 ? 's' : ''} as penalty`,
-        variant: "destructive"
-      });
-    }
-    
-    const nextPlayerIndex = (currentIdx + 1) % updatedPlayers.length;
-    updatedPlayers[nextPlayerIndex] = {
-      ...updatedPlayers[nextPlayerIndex],
+    const nextPlayerIndex = (currentIdx + 1) % newPlayers.length;
+    newPlayers[nextPlayerIndex] = {
+      ...newPlayers[nextPlayerIndex],
       isCurrentTurn: true,
     };
     
-    const winner = updatedPlayers.find(p => p.hand.length === 0 && p.specialCards.length === 0);
+    const winner = newPlayers.find(p => p.hand.length === 0 && p.specialCards.length === 0);
+    
+    // If overflow, set pending overflow state - opponent must give cards to current player
+    const pendingOverflow = overflowPenalty > 0 ? {
+      penaltyCount: overflowPenalty,
+      fromPlayerId: currentIdx === 0 ? newPlayers[1].id : newPlayers[0].id, // Opponent gives cards
+      toPlayerId: newPlayers[currentIdx].id, // Current player (who caused overflow) receives
+    } : undefined;
+    
+    if (overflowPenalty > 0) {
+      toast({
+        title: "Pile Overflow!",
+        description: `Opponent must give you ${overflowPenalty} card${overflowPenalty > 1 ? 's' : ''}`,
+      });
+    }
     
     const newState: GameState = {
       ...gameState,
-      pile: finalPile,
-      pileCount: finalPileCount,
-      minimumRequired: finalPileCount === 0 ? 1 : newMinimum,
-      players: updatedPlayers,
+      pile: newPile,
+      pileCount: newPileCount,
+      minimumRequired: newMinimum,
+      players: newPlayers,
       currentPlayerIndex: nextPlayerIndex,
       turnNumber: gameState.turnNumber + 1,
       lastAction: {
@@ -462,6 +429,7 @@ export function useGameState({ gameId, players }: UseGameStateProps) {
       },
       status: winner ? 'completed' : 'in_progress',
       winner: winner?.id,
+      pendingOverflow,
     };
     
     setGameState(newState);
@@ -469,7 +437,60 @@ export function useGameState({ gameId, players }: UseGameStateProps) {
     
     setSelectedCards([]);
     setIsProcessing(false);
-  }, [gameState, isMyTurn, selectedCards, toast, syncGameState]);
+  }, [gameState, isMyTurn, selectedCards, toast, syncGameState, getOverflowPenalty]);
+
+  // Give cards to opponent (for overflow penalty)
+  const giveCardsForOverflow = useCallback(async (cardsToGive: Card[]) => {
+    if (!gameState || !gameState.pendingOverflow) return;
+    
+    const { fromPlayerId, toPlayerId, penaltyCount } = gameState.pendingOverflow;
+    
+    if (cardsToGive.length !== penaltyCount) {
+      toast({
+        title: "Invalid selection",
+        description: `You must select exactly ${penaltyCount} card${penaltyCount > 1 ? 's' : ''}`,
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    setIsProcessing(true);
+    
+    const newPlayers = [...gameState.players];
+    const fromIdx = newPlayers.findIndex(p => p.id === fromPlayerId);
+    const toIdx = newPlayers.findIndex(p => p.id === toPlayerId);
+    
+    const cardIds = cardsToGive.map(c => c.id);
+    
+    // Remove cards from giver
+    newPlayers[fromIdx] = {
+      ...newPlayers[fromIdx],
+      hand: newPlayers[fromIdx].hand.filter(c => !cardIds.includes(c.id)),
+    };
+    
+    // Add cards to receiver
+    newPlayers[toIdx] = {
+      ...newPlayers[toIdx],
+      hand: [...newPlayers[toIdx].hand, ...cardsToGive],
+    };
+    
+    const newState: GameState = {
+      ...gameState,
+      players: newPlayers,
+      pendingOverflow: undefined, // Clear the pending overflow
+    };
+    
+    setGameState(newState);
+    await syncGameState(newState);
+    
+    setSelectedCards([]);
+    setIsProcessing(false);
+    
+    toast({
+      title: "Cards Given",
+      description: `You gave ${penaltyCount} card${penaltyCount > 1 ? 's' : ''} to your opponent`,
+    });
+  }, [gameState, toast, syncGameState]);
 
   // Use special card
   const useSpecialCard = useCallback(async (card: Card) => {
@@ -490,13 +511,15 @@ export function useGameState({ gameId, players }: UseGameStateProps) {
     let newPileCount = gameState.pileCount;
     let newMinimum = gameState.minimumRequired;
     
-    if (card.rank === 'A' || card.isJoker) {
+    // Ace clears pile, King resets minimum, Joker is just a wild card (doesn't clear)
+    if (card.rank === 'A' && !card.isJoker) {
       newPile = [];
       newPileCount = 0;
       newMinimum = 1;
     } else if (card.rank === 'K') {
       newMinimum = 1;
     }
+    // Jokers used as special cards don't have any effect (they're meant to be played with regular cards)
     
     const nextPlayerIndex = (currentIdx + 1) % newPlayers.length;
     newPlayers[nextPlayerIndex] = {
@@ -669,27 +692,30 @@ export function useGameState({ gameId, players }: UseGameStateProps) {
         const newPileCount = gameState.pileCount + cardsToPlay.length;
         const newMinimum = calculateNewMinimum(cardsToPlay.length, gameState.minimumRequired);
         
-        const { finalPile, finalPileCount, updatedPlayers } = handlePileOverflow(
-          newPileCount,
-          newPile,
-          newPlayers,
-          currentIdx
-        );
+        // Check for overflow penalty
+        const overflowPenalty = getOverflowPenalty(newPileCount);
         
-        const nextPlayerIndex = (currentIdx + 1) % updatedPlayers.length;
-        updatedPlayers[nextPlayerIndex] = {
-          ...updatedPlayers[nextPlayerIndex],
+        const nextPlayerIndex = (currentIdx + 1) % newPlayers.length;
+        newPlayers[nextPlayerIndex] = {
+          ...newPlayers[nextPlayerIndex],
           isCurrentTurn: true,
         };
         
-        const winner = updatedPlayers.find(p => p.hand.length === 0 && p.specialCards.length === 0);
+        const winner = newPlayers.find(p => p.hand.length === 0 && p.specialCards.length === 0);
+        
+        // If overflow caused by bot, opponent (player) gives cards to bot
+        const pendingOverflow = overflowPenalty > 0 ? {
+          penaltyCount: overflowPenalty,
+          fromPlayerId: newPlayers[nextPlayerIndex].id, // Next player gives cards
+          toPlayerId: newPlayers[currentIdx].id, // Bot receives
+        } : undefined;
         
         const newState: GameState = {
           ...gameState,
-          pile: finalPile,
-          pileCount: finalPileCount,
-          minimumRequired: finalPileCount === 0 ? 1 : newMinimum,
-          players: updatedPlayers,
+          pile: newPile,
+          pileCount: newPileCount,
+          minimumRequired: newMinimum,
+          players: newPlayers,
           currentPlayerIndex: nextPlayerIndex,
           turnNumber: gameState.turnNumber + 1,
           lastAction: {
@@ -700,6 +726,7 @@ export function useGameState({ gameId, players }: UseGameStateProps) {
           },
           status: winner ? 'completed' : 'in_progress',
           winner: winner?.id,
+          pendingOverflow,
         };
         
         setGameState(newState);
@@ -720,7 +747,8 @@ export function useGameState({ gameId, players }: UseGameStateProps) {
         let newPileCount = gameState.pileCount;
         let newMinimum = gameState.minimumRequired;
         
-        if (specialCard.rank === 'A' || specialCard.isJoker) {
+        // Ace clears pile, King resets minimum
+        if (specialCard.rank === 'A' && !specialCard.isJoker) {
           newPile = [];
           newPileCount = 0;
           newMinimum = 1;
@@ -797,7 +825,49 @@ export function useGameState({ gameId, players }: UseGameStateProps) {
     }, thinkTime + Math.random() * 500);
     
     return () => clearTimeout(timeout);
-  }, [gameState?.currentPlayerIndex, gameState?.status, syncGameState]);
+  }, [gameState?.currentPlayerIndex, gameState?.status, gameState?.pendingOverflow, syncGameState]);
+
+  // Bot overflow penalty handling - when a bot needs to give cards
+  useEffect(() => {
+    if (!gameState || !gameState.pendingOverflow) return;
+    
+    const { fromPlayerId, toPlayerId, penaltyCount } = gameState.pendingOverflow;
+    const fromPlayer = gameState.players.find(p => p.id === fromPlayerId);
+    
+    if (!fromPlayer?.isBot) return;
+    
+    // Bot gives random cards after a short delay
+    const timeout = setTimeout(async () => {
+      const cardsToGive = fromPlayer.hand.slice(0, Math.min(penaltyCount, fromPlayer.hand.length));
+      
+      const newPlayers = [...gameState.players];
+      const fromIdx = newPlayers.findIndex(p => p.id === fromPlayerId);
+      const toIdx = newPlayers.findIndex(p => p.id === toPlayerId);
+      
+      const cardIds = cardsToGive.map(c => c.id);
+      
+      newPlayers[fromIdx] = {
+        ...newPlayers[fromIdx],
+        hand: newPlayers[fromIdx].hand.filter(c => !cardIds.includes(c.id)),
+      };
+      
+      newPlayers[toIdx] = {
+        ...newPlayers[toIdx],
+        hand: [...newPlayers[toIdx].hand, ...cardsToGive],
+      };
+      
+      const newState: GameState = {
+        ...gameState,
+        players: newPlayers,
+        pendingOverflow: undefined,
+      };
+      
+      setGameState(newState);
+      await syncGameState(newState);
+    }, 800);
+    
+    return () => clearTimeout(timeout);
+  }, [gameState?.pendingOverflow, syncGameState]);
 
   // Initialize on mount
   useEffect(() => {
@@ -805,6 +875,10 @@ export function useGameState({ gameId, players }: UseGameStateProps) {
       initializeGame();
     }
   }, [players, initializeGame, gameState]);
+
+  // Check if player must give cards for overflow
+  const mustGiveCardsForOverflow = gameState?.pendingOverflow?.fromPlayerId === user?.id;
+  const overflowPenaltyCount = gameState?.pendingOverflow?.penaltyCount || 0;
 
   return {
     gameState,
@@ -819,6 +893,9 @@ export function useGameState({ gameId, players }: UseGameStateProps) {
     useSpecialCard,
     acceptPile,
     handleTimeout,
+    giveCardsForOverflow,
+    mustGiveCardsForOverflow,
+    overflowPenaltyCount,
     canPlaySelected: selectedCards.length > 0 && 
       canPlayCards(selectedCards, gameState?.minimumRequired || 1, gameState?.pileCount || 0),
   };

@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { Play, HandMetal } from 'lucide-react';
+import { Play, HandMetal, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface TurnActionsProps {
@@ -11,6 +11,9 @@ interface TurnActionsProps {
   onPlayCards: () => void;
   onAcceptPile: () => void;
   isProcessing?: boolean;
+  mustGiveCardsForOverflow?: boolean;
+  overflowPenaltyCount?: number;
+  onGiveCardsForOverflow?: () => void;
 }
 
 export function TurnActions({
@@ -22,7 +25,51 @@ export function TurnActions({
   onPlayCards,
   onAcceptPile,
   isProcessing,
+  mustGiveCardsForOverflow,
+  overflowPenaltyCount = 0,
+  onGiveCardsForOverflow,
 }: TurnActionsProps) {
+  // Overflow penalty mode - player must give cards
+  if (mustGiveCardsForOverflow && overflowPenaltyCount > 0) {
+    const canGive = selectedCount === overflowPenaltyCount;
+    
+    return (
+      <div className="flex flex-col gap-3 p-4 bg-destructive/10 rounded-xl border border-destructive/50">
+        <div className="text-sm font-semibold text-center text-destructive">
+          ⚠️ Pile Overflow Penalty
+        </div>
+        
+        <div className="flex flex-wrap justify-center gap-3">
+          <Button
+            size="lg"
+            variant="destructive"
+            onClick={onGiveCardsForOverflow}
+            disabled={!canGive || isProcessing}
+            className={cn(
+              "gap-2 min-w-[160px]",
+              canGive && "animate-pulse"
+            )}
+          >
+            <ArrowRight className="w-5 h-5" />
+            Give {overflowPenaltyCount} Card{overflowPenaltyCount !== 1 ? 's' : ''}
+          </Button>
+        </div>
+        
+        <div className="text-xs text-destructive text-center">
+          {selectedCount === 0 ? (
+            `Select ${overflowPenaltyCount} card${overflowPenaltyCount !== 1 ? 's' : ''} to give to your opponent`
+          ) : selectedCount < overflowPenaltyCount ? (
+            `Select ${overflowPenaltyCount - selectedCount} more card${overflowPenaltyCount - selectedCount !== 1 ? 's' : ''}`
+          ) : selectedCount > overflowPenaltyCount ? (
+            `Too many selected! Only give ${overflowPenaltyCount}`
+          ) : (
+            'Ready to give cards'
+          )}
+        </div>
+      </div>
+    );
+  }
+
   if (!isMyTurn) {
     return (
       <div className="flex items-center justify-center py-4 px-6 bg-card/80 rounded-xl border border-border/50">

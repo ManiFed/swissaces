@@ -108,8 +108,13 @@ export function CentralPile({
         )}
       </div>
       
-      {/* Overflow warning */}
-      {pileCount >= 12 && (
+      {/* Overflow warning/status */}
+      {pileCount > 16 ? (
+        <div className="text-destructive text-xs font-semibold animate-pulse flex items-center gap-1 bg-destructive/10 px-3 py-1 rounded-full">
+          <span>🔥</span>
+          <span>OVERFLOW! (+{pileCount - 16})</span>
+        </div>
+      ) : pileCount >= 12 && (
         <div className="text-destructive text-xs font-semibold animate-pulse flex items-center gap-1">
           <span>⚠️</span>
           <span>Overflow at 16!</span>

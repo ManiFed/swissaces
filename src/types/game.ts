@@ -32,6 +32,12 @@ export interface GameState {
   turnNumber: number;
   lastAction?: GameAction;
   winner?: string;
+  // Overflow penalty state
+  pendingOverflow?: {
+    penaltyCount: number;
+    fromPlayerId: string; // Player who caused overflow
+    toPlayerId: string; // Player who must give cards
+  };
 }
 
 export interface GameAction {
