@@ -87,6 +87,9 @@ export default function Game() {
     acceptPile,
     handleTimeout,
     canPlaySelected,
+    giveCardsForOverflow,
+    mustGiveCardsForOverflow,
+    overflowPenaltyCount,
   } = useGameState({
     gameId: gameId || '',
     players,
@@ -125,6 +128,9 @@ export default function Game() {
       onAcceptPile={acceptPile}
       onUseSpecialCard={useSpecialCard}
       onTimeout={handleTimeout}
+      mustGiveCardsForOverflow={mustGiveCardsForOverflow}
+      overflowPenaltyCount={overflowPenaltyCount}
+      onGiveCardsForOverflow={giveCardsForOverflow}
     />
   );
 }
