@@ -1,20 +1,37 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { PlayingCard } from '@/components/PlayingCard';
-import { Loader2, Users, Trophy, History, LogOut } from 'lucide-react';
+import { Loader2, Users, Trophy, History, LogOut, Plus, Globe, Swords } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { motion } from 'framer-motion';
 
 export default function Index() {
   const navigate = useNavigate();
   const { user, loading, signOut } = useAuth();
+  const [stats, setStats] = useState({ wins: 0, losses: 0, played: 0 });
+  const [username, setUsername] = useState('');
 
   useEffect(() => {
-    if (!user && !loading) {
-      navigate('/auth');
-    }
+    if (!user && !loading) navigate('/auth');
   }, [user, loading, navigate]);
+
+  useEffect(() => {
+    if (!user) return;
+    const fetchProfile = async () => {
+      const { data } = await supabase
+        .from('profiles')
+        .select('username, wins, losses, games_played')
+        .eq('id', user.id)
+        .single();
+      if (data) {
+        setUsername(data.username);
+        setStats({ wins: data.wins, losses: data.losses, played: data.games_played });
+      }
+    };
+    fetchProfile();
+  }, [user]);
 
   if (loading) {
     return (
@@ -26,20 +43,22 @@ export default function Index() {
 
   if (!user) return null;
 
+  const winRate = stats.played > 0 ? Math.round((stats.wins / stats.played) * 100) : 0;
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b border-border bg-card">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+      <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
+        <div className="container mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-primary rounded flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-lg">+</span>
+            <div className="w-9 h-9 bg-primary rounded-lg flex items-center justify-center shadow-sm">
+              <span className="text-primary-foreground font-bold text-xl font-serif">♠</span>
             </div>
-            <h1 className="text-2xl font-serif text-primary font-bold">Swiss Aces</h1>
+            <h1 className="text-xl font-serif text-foreground font-bold tracking-tight">Swiss Aces</h1>
           </div>
           <div className="flex items-center gap-4">
-            <span className="text-sm text-muted-foreground">{user.email}</span>
-            <Button variant="ghost" size="sm" onClick={signOut}>
+            <span className="text-sm text-muted-foreground hidden sm:block">{username || user.email}</span>
+            <Button variant="ghost" size="sm" onClick={signOut} className="text-muted-foreground">
               <LogOut className="w-4 h-4 mr-2" />
               Sign Out
             </Button>
@@ -47,89 +66,120 @@ export default function Index() {
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
+      {/* Main */}
+      <main className="container mx-auto px-6 py-10">
         <div className="max-w-4xl mx-auto">
-          {/* Welcome Section */}
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-serif mb-4 text-foreground">Welcome to Swiss Aces</h2>
-            <p className="text-muted-foreground text-lg">
-              The classic Swiss card game where timing and strategy determine victory
-            </p>
-          </div>
+          {/* Welcome */}
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="mb-10"
+          >
+            <h2 className="text-3xl md:text-4xl font-serif font-bold text-foreground mb-2">
+              Welcome back{username ? `, ${username}` : ''}
+            </h2>
+            <p className="text-muted-foreground text-lg">Ready for another round?</p>
+          </motion.div>
 
-          {/* Decorative Cards */}
-          <div className="flex justify-center gap-2 mb-12">
-            <PlayingCard suit="spades" rank="A" size="md" className="transform -rotate-12" />
-            <PlayingCard suit="hearts" rank="K" size="md" className="transform -rotate-6" />
-            <PlayingCard suit="diamonds" rank="Q" size="md" />
-            <PlayingCard suit="clubs" rank="J" size="md" className="transform rotate-6" />
-            <PlayingCard faceDown size="md" className="transform rotate-12" />
-          </div>
+          {/* Quick Actions */}
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10"
+          >
+            <button
+              onClick={() => navigate('/lobby')}
+              className="group flex items-center gap-4 p-5 rounded-2xl border border-primary/20 bg-primary/5 hover:bg-primary/10 hover:border-primary/40 transition-all duration-200 text-left"
+            >
+              <div className="w-12 h-12 rounded-xl bg-primary text-primary-foreground flex items-center justify-center shrink-0 shadow-md shadow-primary/20 group-hover:shadow-lg group-hover:shadow-primary/30 transition-shadow">
+                <Plus className="w-6 h-6" />
+              </div>
+              <div>
+                <p className="font-semibold text-foreground">New Game</p>
+                <p className="text-sm text-muted-foreground">Create a private game</p>
+              </div>
+            </button>
 
-          {/* Action Cards */}
-          <div className="grid md:grid-cols-2 gap-6 mb-8">
-            <Card className="border-primary/30 hover:border-primary hover:shadow-lg transition-all">
-              <CardHeader>
-                <CardTitle className="font-serif flex items-center gap-2">
-                  <Users className="w-5 h-5 text-primary" />
-                  Play Now
-                </CardTitle>
-                <CardDescription>Start a new game or join an existing lobby</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <Button className="w-full" size="lg" onClick={() => navigate('/lobby')}>
-                  Create Private Game
-                </Button>
-                <Button variant="outline" className="w-full" size="lg" onClick={() => navigate('/lobby')}>
-                  Join Public Lobby
-                </Button>
-              </CardContent>
-            </Card>
+            <button
+              onClick={() => navigate('/lobby')}
+              className="group flex items-center gap-4 p-5 rounded-2xl border border-border hover:border-primary/30 hover:shadow-md transition-all duration-200 text-left"
+            >
+              <div className="w-12 h-12 rounded-xl bg-muted text-foreground flex items-center justify-center shrink-0 group-hover:bg-primary/10 transition-colors">
+                <Globe className="w-6 h-6" />
+              </div>
+              <div>
+                <p className="font-semibold text-foreground">Public Lobby</p>
+                <p className="text-sm text-muted-foreground">Join open games</p>
+              </div>
+            </button>
 
-            <Card>
-              <CardHeader>
-                <CardTitle className="font-serif flex items-center gap-2">
+            <button
+              onClick={() => navigate('/lobby')}
+              className="group flex items-center gap-4 p-5 rounded-2xl border border-border hover:border-primary/30 hover:shadow-md transition-all duration-200 text-left"
+            >
+              <div className="w-12 h-12 rounded-xl bg-muted text-foreground flex items-center justify-center shrink-0 group-hover:bg-primary/10 transition-colors">
+                <Swords className="w-6 h-6" />
+              </div>
+              <div>
+                <p className="font-semibold text-foreground">vs Bots</p>
+                <p className="text-sm text-muted-foreground">Practice mode</p>
+              </div>
+            </button>
+          </motion.div>
+
+          {/* Stats */}
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="grid md:grid-cols-2 gap-6 mb-8"
+          >
+            <Card className="overflow-hidden">
+              <CardHeader className="pb-3">
+                <CardTitle className="font-serif flex items-center gap-2 text-lg">
                   <Trophy className="w-5 h-5 text-primary" />
                   Your Stats
                 </CardTitle>
-                <CardDescription>Track your performance</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-3 gap-4 text-center">
-                  <div>
-                    <p className="text-2xl font-bold text-primary">0</p>
-                    <p className="text-xs text-muted-foreground">Wins</p>
+                <div className="grid grid-cols-4 gap-4">
+                  <div className="text-center">
+                    <p className="text-3xl font-bold text-primary font-serif">{stats.wins}</p>
+                    <p className="text-xs text-muted-foreground mt-1">Wins</p>
                   </div>
-                  <div>
-                    <p className="text-2xl font-bold text-foreground">0</p>
-                    <p className="text-xs text-muted-foreground">Losses</p>
+                  <div className="text-center">
+                    <p className="text-3xl font-bold text-foreground font-serif">{stats.losses}</p>
+                    <p className="text-xs text-muted-foreground mt-1">Losses</p>
                   </div>
-                  <div>
-                    <p className="text-2xl font-bold text-muted-foreground">0</p>
-                    <p className="text-xs text-muted-foreground">Played</p>
+                  <div className="text-center">
+                    <p className="text-3xl font-bold text-muted-foreground font-serif">{stats.played}</p>
+                    <p className="text-xs text-muted-foreground mt-1">Played</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-3xl font-bold text-primary font-serif">{winRate}%</p>
+                    <p className="text-xs text-muted-foreground mt-1">Win Rate</p>
                   </div>
                 </div>
               </CardContent>
             </Card>
-          </div>
 
-          {/* Match History */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="font-serif flex items-center gap-2">
-                <History className="w-5 h-5 text-primary" />
-                Recent Matches
-              </CardTitle>
-              <CardDescription>Your game history</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center py-8 text-muted-foreground">
-                <p>No matches played yet</p>
-                <p className="text-sm">Start a game to build your history!</p>
-              </div>
-            </CardContent>
-          </Card>
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="font-serif flex items-center gap-2 text-lg">
+                  <History className="w-5 h-5 text-primary" />
+                  Recent Matches
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center py-6 text-muted-foreground">
+                  <p className="text-sm">No matches played yet.</p>
+                  <p className="text-xs mt-1">Start a game to build your history!</p>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
         </div>
       </main>
     </div>
