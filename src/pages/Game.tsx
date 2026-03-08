@@ -31,74 +31,46 @@ export default function Game() {
   }>>([]);
   const [loadingPlayers, setLoadingPlayers] = useState(true);
 
-  // Fetch players for this game
   useEffect(() => {
     if (!gameId) return;
-
     const fetchPlayers = async () => {
       const { data, error } = await supabase
         .from('game_players')
-        .select(`
-          *,
-          profile:profiles(username)
-        `)
+        .select(`*, profile:profiles(username)`)
         .eq('game_id', gameId)
         .order('seat_position');
 
-      if (error) {
-        console.error('Error fetching players:', error);
-        navigate('/lobby');
-        return;
-      }
+      if (error) { navigate('/lobby'); return; }
 
-      const formattedPlayers = (data as GamePlayerData[]).map(p => ({
+      setPlayers((data as GamePlayerData[]).map(p => ({
         id: p.is_bot ? p.id : (p.player_id || p.id),
         name: p.is_bot ? (p.bot_name || 'Bot') : (p.profile?.username || 'Player'),
         isBot: p.is_bot,
         botDifficulty: p.bot_difficulty as 'easy' | 'medium' | 'hard' | undefined,
         seatPosition: p.seat_position,
-      }));
-
-      setPlayers(formattedPlayers);
+      })));
       setLoadingPlayers(false);
     };
-
     fetchPlayers();
   }, [gameId, navigate]);
 
-  // Redirect to auth if not logged in
   useEffect(() => {
-    if (!authLoading && !user) {
-      navigate('/auth');
-    }
+    if (!authLoading && !user) navigate('/auth');
   }, [user, authLoading, navigate]);
 
-  // Initialize game state
   const {
-    gameState,
-    selectedCards,
-    isMyTurn,
-    myPlayer,
-    isProcessing,
-    toggleCardSelection,
-    selectAllOfRank,
-    playCards,
-    useSpecialCard,
-    acceptPile,
-    handleTimeout,
-    canPlaySelected,
-    giveCardsForOverflow,
-    mustGiveCardsForOverflow,
-    overflowPenaltyCount,
-  } = useGameState({
-    gameId: gameId || '',
-    players,
-  });
+    gameState, selectedCards, isMyTurn, myPlayer, isProcessing,
+    toggleCardSelection, selectAllOfRank, playCards, useSpecialCard,
+    acceptPile, handleTimeout, canPlaySelected,
+    giveCardsForOverflow, mustGiveCardsForOverflow, overflowPenaltyCount,
+  } = useGameState({ gameId: gameId || '', players });
 
   if (authLoading || loadingPlayers) {
     return (
       <div className="h-screen felt-texture flex items-center justify-center overflow-hidden">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        <div className="bg-white rounded-xl p-6 shadow-lg">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        </div>
       </div>
     );
   }
@@ -106,9 +78,9 @@ export default function Game() {
   if (!gameState) {
     return (
       <div className="h-screen felt-texture flex items-center justify-center overflow-hidden">
-        <div className="text-center p-6 bg-card/80 rounded-xl border border-border">
+        <div className="text-center p-6 bg-white rounded-xl shadow-lg">
           <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto mb-4" />
-          <p className="text-muted-foreground">Setting up the game...</p>
+          <p className="text-gray-600">Setting up the game...</p>
         </div>
       </div>
     );

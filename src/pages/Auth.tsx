@@ -41,73 +41,42 @@ export default function Auth() {
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});
-    
     const result = signUpSchema.safeParse(signUpData);
     if (!result.success) {
       const fieldErrors: Record<string, string> = {};
       result.error.errors.forEach((err) => {
-        if (err.path[0]) {
-          fieldErrors[err.path[0] as string] = err.message;
-        }
+        if (err.path[0]) fieldErrors[err.path[0] as string] = err.message;
       });
       setErrors(fieldErrors);
       return;
     }
-
     setIsSubmitting(true);
     const { error } = await signUp(signUpData.email, signUpData.password, signUpData.username);
     setIsSubmitting(false);
-
     if (error) {
-      if (error.message.includes('already registered')) {
-        toast({
-          title: 'Account exists',
-          description: 'This email is already registered. Please sign in instead.',
-          variant: 'destructive',
-        });
-      } else {
-        toast({
-          title: 'Error',
-          description: error.message,
-          variant: 'destructive',
-        });
-      }
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
       return;
     }
-
-    toast({
-      title: 'Welcome to Swiss Aces!',
-      description: 'Your account has been created successfully.',
-    });
+    toast({ title: 'Welcome to Swiss Aces!', description: 'Your account has been created.' });
   };
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});
-    
     const result = signInSchema.safeParse(signInData);
     if (!result.success) {
       const fieldErrors: Record<string, string> = {};
       result.error.errors.forEach((err) => {
-        if (err.path[0]) {
-          fieldErrors[err.path[0] as string] = err.message;
-        }
+        if (err.path[0]) fieldErrors[err.path[0] as string] = err.message;
       });
       setErrors(fieldErrors);
       return;
     }
-
     setIsSubmitting(true);
     const { error } = await signIn(signInData.email, signInData.password);
     setIsSubmitting(false);
-
     if (error) {
-      toast({
-        title: 'Sign in failed',
-        description: 'Invalid email or password. Please try again.',
-        variant: 'destructive',
-      });
-      return;
+      toast({ title: 'Sign in failed', description: 'Invalid email or password.', variant: 'destructive' });
     }
   };
 
@@ -115,51 +84,44 @@ export default function Auth() {
     setIsSubmitting(true);
     const { error } = await signInWithGoogle();
     setIsSubmitting(false);
-
     if (error) {
-      toast({
-        title: 'Error',
-        description: 'Could not sign in with Google. Please try again.',
-        variant: 'destructive',
-      });
+      toast({ title: 'Error', description: 'Could not sign in with Google.', variant: 'destructive' });
     }
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen felt-texture flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen felt-texture flex items-center justify-center p-4">
-      {/* Decorative cards */}
-      <div className="fixed top-10 left-10 opacity-20 animate-float hidden lg:block">
-        <PlayingCard suit="spades" rank="A" size="lg" />
-      </div>
-      <div className="fixed bottom-10 right-10 opacity-20 animate-float hidden lg:block" style={{ animationDelay: '2s' }}>
-        <PlayingCard suit="hearts" rank="K" size="lg" />
-      </div>
-      <div className="fixed top-1/4 right-20 opacity-10 animate-float hidden xl:block" style={{ animationDelay: '4s' }}>
-        <PlayingCard faceDown size="lg" />
-      </div>
-
-      <div className="w-full max-w-md animate-scale-in">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        {/* Logo */}
         <div className="text-center mb-8">
-          <div className="flex items-center justify-center gap-3 mb-2">
+          <div className="flex items-center justify-center gap-3 mb-3">
             <div className="w-10 h-10 bg-primary rounded flex items-center justify-center">
               <span className="text-primary-foreground font-bold text-xl">+</span>
             </div>
-            <h1 className="text-4xl md:text-5xl font-serif swiss-text">Swiss Aces</h1>
+            <h1 className="text-4xl md:text-5xl font-serif text-primary font-bold">Swiss Aces</h1>
           </div>
           <p className="text-muted-foreground">The classic card game, online</p>
         </div>
 
-        <Card className="swiss-border bg-card/90 backdrop-blur-sm">
+        {/* Decorative cards */}
+        <div className="flex justify-center gap-1 mb-8">
+          <PlayingCard suit="spades" rank="A" size="sm" className="transform -rotate-12" />
+          <PlayingCard suit="hearts" rank="K" size="sm" className="transform -rotate-4" />
+          <PlayingCard suit="diamonds" rank="Q" size="sm" />
+          <PlayingCard suit="clubs" rank="J" size="sm" className="transform rotate-4" />
+        </div>
+
+        <Card className="border-border shadow-lg">
           <CardHeader className="text-center pb-4">
-            <CardTitle className="font-serif text-2xl text-card-foreground">Welcome</CardTitle>
+            <CardTitle className="font-serif text-2xl">Welcome</CardTitle>
             <CardDescription>Sign in to play or create a new account</CardDescription>
           </CardHeader>
           <CardContent>
@@ -179,7 +141,6 @@ export default function Auth() {
                       placeholder="you@example.com"
                       value={signInData.email}
                       onChange={(e) => setSignInData({ ...signInData, email: e.target.value })}
-                      className="bg-input/50"
                     />
                     {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
                   </div>
@@ -191,7 +152,6 @@ export default function Auth() {
                       placeholder="••••••••"
                       value={signInData.password}
                       onChange={(e) => setSignInData({ ...signInData, password: e.target.value })}
-                      className="bg-input/50"
                     />
                     {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
                   </div>
@@ -212,7 +172,6 @@ export default function Auth() {
                       placeholder="CardShark"
                       value={signUpData.username}
                       onChange={(e) => setSignUpData({ ...signUpData, username: e.target.value })}
-                      className="bg-input/50"
                     />
                     {errors.username && <p className="text-sm text-destructive">{errors.username}</p>}
                   </div>
@@ -224,7 +183,6 @@ export default function Auth() {
                       placeholder="you@example.com"
                       value={signUpData.email}
                       onChange={(e) => setSignUpData({ ...signUpData, email: e.target.value })}
-                      className="bg-input/50"
                     />
                     {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
                   </div>
@@ -236,7 +194,6 @@ export default function Auth() {
                       placeholder="••••••••"
                       value={signUpData.password}
                       onChange={(e) => setSignUpData({ ...signUpData, password: e.target.value })}
-                      className="bg-input/50"
                     />
                     {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
                   </div>
@@ -257,29 +214,12 @@ export default function Auth() {
               </div>
             </div>
 
-            <Button 
-              variant="outline" 
-              className="w-full" 
-              onClick={handleGoogleSignIn}
-              disabled={isSubmitting}
-            >
+            <Button variant="outline" className="w-full" onClick={handleGoogleSignIn} disabled={isSubmitting}>
               <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
-                <path
-                  fill="currentColor"
-                  d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                />
-                <path
-                  fill="currentColor"
-                  d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                />
-                <path
-                  fill="currentColor"
-                  d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                />
-                <path
-                  fill="currentColor"
-                  d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                />
+                <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+                <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
               </svg>
               Continue with Google
             </Button>
