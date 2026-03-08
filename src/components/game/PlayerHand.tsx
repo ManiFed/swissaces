@@ -27,12 +27,10 @@ export function PlayerHand({
   const grouped = groupCardsByRank(cards);
   const jokers = cards.filter(c => c.isJoker);
   
-  // Sort ranks for display
   const sortedRanks = Array.from(grouped.keys()).sort(
     (a, b) => RANKS_ORDER.indexOf(a) - RANKS_ORDER.indexOf(b)
   );
 
-  // Check which groups can be played
   const canPlayGroup = (groupCards: Card[]): boolean => {
     return groupCards.length >= minimumRequired;
   };
@@ -56,7 +54,7 @@ export function PlayerHand({
 
   return (
     <div className="w-full">
-      <div className="flex flex-wrap justify-center gap-2 p-3 bg-card/80 rounded-xl backdrop-blur-sm border border-border/50">
+      <div className="flex flex-wrap justify-center gap-2 p-3 bg-white rounded-xl border border-gray-300 shadow-sm">
         {/* Grouped cards by rank */}
         {sortedRanks.map((rank) => {
           const groupCards = grouped.get(rank) || [];
@@ -65,7 +63,7 @@ export function PlayerHand({
           
           return (
             <div key={rank} className="flex flex-col items-center gap-1">
-              {/* Rank badge - clickable to select all */}
+              {/* Rank badge */}
               <button
                 onClick={(e) => handleRankBadgeClick(rank, e)}
                 disabled={disabled}
@@ -73,16 +71,16 @@ export function PlayerHand({
                   "text-[11px] font-semibold px-2 py-0.5 rounded-full transition-all",
                   "hover:scale-105 cursor-pointer",
                   playable 
-                    ? "bg-primary/20 text-primary hover:bg-primary/30" 
-                    : "bg-muted text-muted-foreground hover:bg-muted/80",
-                  allSelected && "ring-2 ring-primary",
+                    ? "bg-red-100 text-red-700 hover:bg-red-200" 
+                    : "bg-gray-100 text-gray-500 hover:bg-gray-200",
+                  allSelected && "ring-2 ring-blue-500",
                   disabled && "cursor-not-allowed opacity-50"
                 )}
               >
                 {groupCards.length}× {rank}
               </button>
               
-              {/* Cards in group - stacked */}
+              {/* Cards in group */}
               <div className="flex" style={{ marginLeft: `${Math.max(0, (groupCards.length - 1) * 12)}px` }}>
                 {groupCards.map((card, idx) => (
                   <div 
@@ -113,7 +111,7 @@ export function PlayerHand({
         {/* Jokers */}
         {jokers.length > 0 && (
           <div className="flex flex-col items-center gap-1">
-            <div className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-primary/20 text-primary">
+            <div className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">
               {jokers.length}× ★
             </div>
             <div className="flex" style={{ marginLeft: `${Math.max(0, (jokers.length - 1) * 12)}px` }}>
@@ -144,7 +142,7 @@ export function PlayerHand({
         )}
         
         {cards.length === 0 && (
-          <div className="text-muted-foreground text-center py-4 text-sm">
+          <div className="text-gray-400 text-center py-4 text-sm">
             No cards in hand
           </div>
         )}
