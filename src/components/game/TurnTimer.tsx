@@ -4,20 +4,18 @@ import { Timer } from 'lucide-react';
 
 interface TurnTimerProps {
   isActive: boolean;
-  duration: number; // in seconds
+  duration: number;
   onTimeout: () => void;
-  turnNumber: number; // Used to reset timer on turn change
+  turnNumber: number;
 }
 
 export function TurnTimer({ isActive, duration, onTimeout, turnNumber }: TurnTimerProps) {
   const [timeLeft, setTimeLeft] = useState(duration);
   
-  // Reset timer when turn changes
   useEffect(() => {
     setTimeLeft(duration);
   }, [turnNumber, duration]);
   
-  // Countdown effect
   useEffect(() => {
     if (!isActive) return;
     
@@ -28,9 +26,7 @@ export function TurnTimer({ isActive, duration, onTimeout, turnNumber }: TurnTim
     
     const interval = setInterval(() => {
       setTimeLeft(prev => {
-        if (prev <= 1) {
-          return 0;
-        }
+        if (prev <= 1) return 0;
         return prev - 1;
       });
     }, 1000);
@@ -45,28 +41,27 @@ export function TurnTimer({ isActive, duration, onTimeout, turnNumber }: TurnTim
   return (
     <div className={cn(
       "flex items-center gap-2 px-3 py-2 rounded-lg transition-all",
-      isActive ? "bg-card/80" : "bg-card/40 opacity-50",
-      isCritical && isActive && "animate-timer-pulse bg-destructive/20"
+      isActive ? "bg-white shadow-sm" : "bg-white/50 opacity-50",
+      isCritical && isActive && "animate-timer-pulse bg-red-50"
     )}>
       <Timer className={cn(
         "w-4 h-4",
-        isCritical ? "text-destructive" : isLow ? "text-primary" : "text-muted-foreground"
+        isCritical ? "text-red-600" : isLow ? "text-amber-600" : "text-gray-500"
       )} />
       
       <div className="flex flex-col gap-1 min-w-[60px]">
         <div className={cn(
           "text-sm font-mono font-bold",
-          isCritical ? "text-destructive" : isLow ? "text-primary" : "text-foreground"
+          isCritical ? "text-red-600" : isLow ? "text-amber-600" : "text-gray-700"
         )}>
           {timeLeft}s
         </div>
         
-        {/* Progress bar */}
-        <div className="h-1 bg-muted rounded-full overflow-hidden">
+        <div className="h-1 bg-gray-200 rounded-full overflow-hidden">
           <div 
             className={cn(
               "h-full transition-all duration-1000 ease-linear rounded-full",
-              isCritical ? "bg-destructive" : isLow ? "bg-primary" : "bg-muted-foreground"
+              isCritical ? "bg-red-500" : isLow ? "bg-amber-500" : "bg-gray-400"
             )}
             style={{ width: `${percentage}%` }}
           />

@@ -47,10 +47,8 @@ export function GameBoard({
 }: GameBoardProps) {
   const navigate = useNavigate();
   
-  // Get opponents (players other than me)
   const opponents = gameState.players.filter(p => p.id !== myPlayer?.id);
   
-  // Determine opponent positions based on count
   const getOpponentPosition = (index: number, total: number): 'top' | 'left' | 'right' => {
     if (total === 1) return 'top';
     if (total === 2) return index === 0 ? 'left' : 'right';
@@ -59,19 +57,19 @@ export function GameBoard({
     return 'right';
   };
 
-  // Check for game over
+  // Game over screen
   if (gameState.status === 'completed') {
     const winner = gameState.players.find(p => p.id === gameState.winner);
     const isWinner = winner?.id === myPlayer?.id;
     
     return (
       <div className="h-screen felt-texture flex items-center justify-center overflow-hidden">
-        <div className="text-center p-8 bg-card/90 rounded-2xl backdrop-blur-sm max-w-md border border-border shadow-xl">
-          <Trophy className={`w-20 h-20 mx-auto mb-4 ${isWinner ? 'text-primary' : 'text-muted-foreground'}`} />
-          <h2 className="text-3xl font-serif mb-2 swiss-text">
+        <div className="text-center p-8 rounded-2xl backdrop-blur-sm max-w-md border shadow-xl bg-white text-gray-900">
+          <Trophy className={`w-20 h-20 mx-auto mb-4 ${isWinner ? 'text-red-600' : 'text-gray-400'}`} />
+          <h2 className="text-3xl font-serif mb-2 text-red-600">
             {isWinner ? 'Victory!' : 'Game Over'}
           </h2>
-          <p className="text-lg text-muted-foreground mb-6">
+          <p className="text-lg text-gray-600 mb-6">
             {winner?.name} wins the game!
           </p>
           <Button onClick={() => navigate('/')} className="gap-2">
@@ -100,7 +98,6 @@ export function GameBoard({
           );
         })}
         
-        {/* Turn timer */}
         {onTimeout && (
           <TurnTimer
             isActive={isMyTurn && !isProcessing}
@@ -129,7 +126,6 @@ export function GameBoard({
           })}
         </div>
 
-        {/* Central pile */}
         <div className="flex-shrink-0">
           <CentralPile
             pile={gameState.pile}
@@ -156,10 +152,9 @@ export function GameBoard({
       </div>
 
       {/* Bottom area - Player's stuff */}
-      <div className="p-3 space-y-2 shrink-0 bg-gradient-to-t from-black/20 to-transparent">
+      <div className="p-3 space-y-2 shrink-0 bg-black/30">
         {/* Actions and special cards row */}
         <div className="flex flex-row gap-3 justify-center items-stretch">
-          {/* Special card pool */}
           <SpecialCardPool
             poolCount={gameState.specialCardPool.length}
             playerSpecialCards={myPlayer?.specialCards || []}
@@ -167,7 +162,6 @@ export function GameBoard({
             disabled={!isMyTurn || isProcessing}
           />
           
-          {/* Turn actions */}
           <TurnActions
             isMyTurn={isMyTurn}
             canPlay={canPlaySelected}

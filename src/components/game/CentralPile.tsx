@@ -19,8 +19,6 @@ export function CentralPile({
   isDropTarget = false
 }: CentralPileProps) {
   const [isDragOver, setIsDragOver] = useState(false);
-  
-  // Show last few cards on the pile
   const visibleCards = pile.slice(-4);
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -52,8 +50,9 @@ export function CentralPile({
   return (
     <div 
       className={cn(
-        "flex flex-col items-center gap-3 p-6 rounded-2xl transition-all bg-black/20",
-        isDragOver && "bg-primary/20 ring-2 ring-primary"
+        "flex flex-col items-center gap-3 p-6 rounded-2xl transition-all",
+        "bg-black/25 border border-white/10",
+        isDragOver && "bg-red-600/30 ring-2 ring-red-400"
       )}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
@@ -61,16 +60,16 @@ export function CentralPile({
     >
       {/* Pile count display */}
       <div className="text-center">
-        <div className="text-5xl md:text-6xl font-bold swiss-text font-serif">{pileCount}</div>
-        <div className="text-xs text-muted-foreground uppercase tracking-wide">cards in pile</div>
+        <div className="text-5xl md:text-6xl font-bold text-white font-serif drop-shadow-lg">{pileCount}</div>
+        <div className="text-xs text-white/70 uppercase tracking-wide">cards in pile</div>
       </div>
       
       {/* Minimum required indicator */}
       <div className={cn(
-        "px-4 py-1.5 rounded-full text-xs font-semibold border",
+        "px-4 py-1.5 rounded-full text-xs font-semibold",
         minimumRequired >= 3 
-          ? "bg-destructive/10 text-destructive border-destructive/30" 
-          : "bg-primary/10 text-primary border-primary/30"
+          ? "bg-red-600 text-white" 
+          : "bg-white/20 text-white"
       )}>
         Min: {minimumRequired}
       </div>
@@ -80,9 +79,9 @@ export function CentralPile({
         {pileCount === 0 ? (
           <div className={cn(
             "w-16 h-[88px] border-2 border-dashed rounded-lg flex items-center justify-center mx-auto",
-            isDragOver ? "border-primary bg-primary/10" : "border-muted-foreground/30"
+            isDragOver ? "border-red-400 bg-red-500/20" : "border-white/30"
           )}>
-            <span className="text-muted-foreground/50 text-[10px]">
+            <span className="text-white/40 text-[10px]">
               {isDragOver ? 'Drop here' : 'Empty'}
             </span>
           </div>
@@ -110,12 +109,12 @@ export function CentralPile({
       
       {/* Overflow warning/status */}
       {pileCount > 16 ? (
-        <div className="text-destructive text-xs font-semibold animate-pulse flex items-center gap-1 bg-destructive/10 px-3 py-1 rounded-full">
+        <div className="text-xs font-semibold animate-pulse flex items-center gap-1 bg-red-600 text-white px-3 py-1 rounded-full">
           <span>🔥</span>
           <span>OVERFLOW! (+{pileCount - 16})</span>
         </div>
       ) : pileCount >= 12 && (
-        <div className="text-destructive text-xs font-semibold animate-pulse flex items-center gap-1">
+        <div className="text-xs font-semibold animate-pulse flex items-center gap-1 text-yellow-300">
           <span>⚠️</span>
           <span>Overflow at 16!</span>
         </div>
