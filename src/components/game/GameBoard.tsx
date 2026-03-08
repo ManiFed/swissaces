@@ -72,7 +72,7 @@ export function GameBoard({
           <p className="text-lg text-gray-600 mb-6">
             {winner?.name} wins the game!
           </p>
-          <Button onClick={() => navigate('/')} className="gap-2">
+          <Button onClick={() => navigate('/home')} className="gap-2">
             <ArrowLeft className="w-4 h-4" />
             Return Home
           </Button>
