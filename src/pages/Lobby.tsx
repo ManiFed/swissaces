@@ -73,7 +73,7 @@ export default function Lobby() {
       <header className="border-b border-border bg-card">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="sm" onClick={() => navigate('/')}>
+            <Button variant="ghost" size="sm" onClick={() => navigate('/home')}>
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back
             </Button>
