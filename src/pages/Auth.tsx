@@ -33,9 +33,7 @@ export default function Auth() {
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    if (user && !loading) {
-      navigate('/');
-    }
+    if (user && !loading) navigate('/home');
   }, [user, loading, navigate]);
 
   const handleSignUp = async (e: React.FormEvent) => {
