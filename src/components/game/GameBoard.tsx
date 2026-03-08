@@ -48,7 +48,7 @@ export function GameBoard({
   const navigate = useNavigate();
   
   const opponents = gameState.players.filter(p => p.id !== myPlayer?.id);
-  
+
   const getOpponentPosition = (index: number, total: number): 'top' | 'left' | 'right' => {
     if (total === 1) return 'top';
     if (total === 2) return index === 0 ? 'left' : 'right';
@@ -57,19 +57,23 @@ export function GameBoard({
     return 'right';
   };
 
+  const topOpponent = opponents.find((opponent, index) => getOpponentPosition(index, opponents.length) === 'top');
+  const leftOpponent = opponents.find((opponent, index) => getOpponentPosition(index, opponents.length) === 'left');
+  const rightOpponent = opponents.find((opponent, index) => getOpponentPosition(index, opponents.length) === 'right');
+
   // Game over screen
   if (gameState.status === 'completed') {
     const winner = gameState.players.find(p => p.id === gameState.winner);
     const isWinner = winner?.id === myPlayer?.id;
-    
+
     return (
-      <div className="h-screen felt-texture flex items-center justify-center overflow-hidden">
-        <div className="text-center p-8 rounded-2xl backdrop-blur-sm max-w-md border shadow-xl bg-white text-gray-900">
-          <Trophy className={`w-20 h-20 mx-auto mb-4 ${isWinner ? 'text-red-600' : 'text-gray-400'}`} />
-          <h2 className="text-3xl font-serif mb-2 text-red-600">
+      <div className="h-[100dvh] felt-texture flex items-center justify-center overflow-hidden">
+        <div className="text-center p-8 rounded-2xl backdrop-blur-sm max-w-md border border-border shadow-xl bg-card text-card-foreground">
+          <Trophy className={`w-20 h-20 mx-auto mb-4 ${isWinner ? 'text-primary' : 'text-muted-foreground'}`} />
+          <h2 className="text-3xl font-serif mb-2 text-foreground">
             {isWinner ? 'Victory!' : 'Game Over'}
           </h2>
-          <p className="text-lg text-gray-600 mb-6">
+          <p className="text-lg text-muted-foreground mb-6">
             {winner?.name} wins the game!
           </p>
           <Button onClick={() => navigate('/home')} className="gap-2">
@@ -82,48 +86,45 @@ export function GameBoard({
   }
 
   return (
-    <div className="h-screen felt-texture flex flex-col overflow-hidden">
-      {/* Top area - Opponents and Timer */}
-      <div className="flex justify-center items-start gap-4 p-3 shrink-0">
-        {opponents.map((opponent, index) => {
-          const position = getOpponentPosition(index, opponents.length);
-          if (position !== 'top') return null;
-          return (
-            <OpponentPanel
-              key={opponent.id}
-              player={opponent}
-              isCurrentTurn={opponent.isCurrentTurn}
-              position="top"
-            />
-          );
-        })}
-        
-        {onTimeout && (
-          <TurnTimer
-            isActive={isMyTurn && !isProcessing}
-            duration={30}
-            onTimeout={onTimeout}
-            turnNumber={gameState.turnNumber}
-          />
-        )}
+    <div className="h-[100dvh] felt-texture grid grid-rows-[auto_1fr_auto] overflow-hidden">
+      {/* Top area - Opponent and Timer */}
+      <div className="px-2 md:px-3 pt-2 md:pt-3 pb-1 shrink-0">
+        <div className="grid grid-cols-3 items-start gap-2">
+          <div />
+          <div className="flex justify-center">
+            {topOpponent && (
+              <OpponentPanel
+                key={topOpponent.id}
+                player={topOpponent}
+                isCurrentTurn={topOpponent.isCurrentTurn}
+                position="top"
+              />
+            )}
+          </div>
+          <div className="flex justify-end">
+            {onTimeout && (
+              <TurnTimer
+                isActive={isMyTurn && !isProcessing}
+                duration={30}
+                onTimeout={onTimeout}
+                turnNumber={gameState.turnNumber}
+              />
+            )}
+          </div>
+        </div>
       </div>
 
-      {/* Middle area - Side opponents + Central pile */}
-      <div className="flex-1 flex items-center justify-center gap-6 px-4 min-h-0">
-        {/* Left opponent */}
-        <div className="w-36 shrink-0">
-          {opponents.map((opponent, index) => {
-            const position = getOpponentPosition(index, opponents.length);
-            if (position !== 'left') return null;
-            return (
-              <OpponentPanel
-                key={opponent.id}
-                player={opponent}
-                isCurrentTurn={opponent.isCurrentTurn}
-                position="left"
-              />
-            );
-          })}
+      {/* Middle area */}
+      <div className="min-h-0 px-2 md:px-4 pb-2 md:pb-3 flex items-center justify-center gap-3 md:gap-6">
+        <div className="w-28 md:w-36 shrink-0 flex justify-center">
+          {leftOpponent && (
+            <OpponentPanel
+              key={leftOpponent.id}
+              player={leftOpponent}
+              isCurrentTurn={leftOpponent.isCurrentTurn}
+              position="left"
+            />
+          )}
         </div>
 
         <div className="flex-shrink-0">
@@ -134,34 +135,28 @@ export function GameBoard({
           />
         </div>
 
-        {/* Right opponent */}
-        <div className="w-36 shrink-0">
-          {opponents.map((opponent, index) => {
-            const position = getOpponentPosition(index, opponents.length);
-            if (position !== 'right') return null;
-            return (
-              <OpponentPanel
-                key={opponent.id}
-                player={opponent}
-                isCurrentTurn={opponent.isCurrentTurn}
-                position="right"
-              />
-            );
-          })}
+        <div className="w-28 md:w-36 shrink-0 flex justify-center">
+          {rightOpponent && (
+            <OpponentPanel
+              key={rightOpponent.id}
+              player={rightOpponent}
+              isCurrentTurn={rightOpponent.isCurrentTurn}
+              position="right"
+            />
+          )}
         </div>
       </div>
 
-      {/* Bottom area - Player's stuff */}
-      <div className="p-3 space-y-2 shrink-0 bg-black/30">
-        {/* Actions and special cards row */}
-        <div className="flex flex-row gap-3 justify-center items-stretch">
+      {/* Bottom area */}
+      <div className="p-2 md:p-3 space-y-2 shrink-0 bg-card/95 backdrop-blur-sm border-t border-border max-h-[48dvh]">
+        <div className="flex flex-col md:flex-row gap-2 md:gap-3 justify-center items-stretch">
           <SpecialCardPool
             poolCount={gameState.specialCardPool.length}
             playerSpecialCards={myPlayer?.specialCards || []}
             onUseSpecialCard={onUseSpecialCard}
             disabled={!isMyTurn || isProcessing}
           />
-          
+
           <TurnActions
             isMyTurn={isMyTurn}
             canPlay={canPlaySelected}
@@ -177,7 +172,6 @@ export function GameBoard({
           />
         </div>
 
-        {/* Player's hand */}
         {myPlayer && (
           <PlayerHand
             cards={myPlayer.hand}
