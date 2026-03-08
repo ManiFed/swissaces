@@ -86,7 +86,7 @@ export function GameBoard({
   }
 
   return (
-    <div className="h-[100dvh] felt-texture grid grid-rows-[auto_1fr_auto] overflow-hidden">
+    <div className="h-[100dvh] felt-texture flex flex-col overflow-hidden">
       {/* Top area - Opponent and Timer */}
       <div className="px-2 md:px-3 pt-2 md:pt-3 pb-1 shrink-0">
         <div className="grid grid-cols-3 items-start gap-2">
@@ -114,8 +114,8 @@ export function GameBoard({
         </div>
       </div>
 
-      {/* Middle area */}
-      <div className="min-h-0 px-2 md:px-4 pb-2 md:pb-3 flex items-center justify-center gap-3 md:gap-6">
+      {/* Middle area - Central Pile (always visible) */}
+      <div className="flex-1 min-h-[200px] px-2 md:px-4 flex items-center justify-center gap-3 md:gap-6">
         <div className="w-28 md:w-36 shrink-0 flex justify-center">
           {leftOpponent && (
             <OpponentPanel
@@ -147,8 +147,8 @@ export function GameBoard({
         </div>
       </div>
 
-      {/* Bottom area */}
-      <div className="p-2 md:p-3 space-y-2 shrink-0 bg-card/95 backdrop-blur-sm border-t border-border max-h-[48dvh]">
+      {/* Bottom area - capped height, scrollable */}
+      <div className="shrink-0 max-h-[40dvh] overflow-y-auto p-2 md:p-3 space-y-2 bg-card/95 backdrop-blur-sm border-t border-border">
         <div className="flex flex-col md:flex-row gap-2 md:gap-3 justify-center items-stretch">
           <SpecialCardPool
             poolCount={gameState.specialCardPool.length}
