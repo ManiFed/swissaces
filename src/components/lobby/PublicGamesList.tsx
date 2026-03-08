@@ -28,31 +28,22 @@ export function PublicGamesList({ games, onJoinGame, loading }: PublicGamesListP
         const spotsLeft = game.max_players - playerCount;
 
         return (
-          <Card key={game.id} className="bg-card/60 border-border/50 hover:border-primary/50 transition-colors">
+          <Card key={game.id} className="hover:border-primary transition-colors">
             <CardContent className="p-4 flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-2 text-primary">
                   <Users className="w-5 h-5" />
-                  <span className="font-semibold">
-                    {playerCount}/{game.max_players}
-                  </span>
+                  <span className="font-semibold">{playerCount}/{game.max_players}</span>
                 </div>
                 <div>
-                  <p className="font-medium">
-                    {game.host?.username || 'Unknown'}'s Game
-                  </p>
+                  <p className="font-medium">{game.host?.username || 'Unknown'}'s Game</p>
                   <p className="text-xs text-muted-foreground flex items-center gap-1">
                     <Clock className="w-3 h-3" />
                     Created {formatDistanceToNow(new Date(game.created_at), { addSuffix: true })}
                   </p>
                 </div>
               </div>
-
-              <Button
-                size="sm"
-                onClick={() => onJoinGame(game.id)}
-                disabled={loading || spotsLeft === 0}
-              >
+              <Button size="sm" onClick={() => onJoinGame(game.id)} disabled={loading || spotsLeft === 0}>
                 {spotsLeft === 0 ? 'Full' : `Join (${spotsLeft} spot${spotsLeft !== 1 ? 's' : ''} left)`}
               </Button>
             </CardContent>

@@ -18,31 +18,27 @@ export default function Index() {
 
   if (loading) {
     return (
-      <div className="min-h-screen felt-texture flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
   }
 
-  if (!user) {
-    return null;
-  }
+  if (!user) return null;
 
   return (
-    <div className="min-h-screen felt-texture">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b border-border/30 bg-card/50 backdrop-blur-sm">
+      <header className="border-b border-border bg-card">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 bg-primary rounded flex items-center justify-center">
               <span className="text-primary-foreground font-bold text-lg">+</span>
             </div>
-            <h1 className="text-2xl font-serif swiss-text">Swiss Aces</h1>
+            <h1 className="text-2xl font-serif text-primary font-bold">Swiss Aces</h1>
           </div>
           <div className="flex items-center gap-4">
-            <span className="text-sm text-muted-foreground">
-              {user.email}
-            </span>
+            <span className="text-sm text-muted-foreground">{user.email}</span>
             <Button variant="ghost" size="sm" onClick={signOut}>
               <LogOut className="w-4 h-4 mr-2" />
               Sign Out
@@ -55,15 +51,15 @@ export default function Index() {
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
           {/* Welcome Section */}
-          <div className="text-center mb-12 animate-fade-in">
-            <h2 className="text-3xl md:text-4xl font-serif mb-4 text-card-foreground">Welcome to Swiss Aces</h2>
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-serif mb-4 text-foreground">Welcome to Swiss Aces</h2>
             <p className="text-muted-foreground text-lg">
               The classic Swiss card game where timing and strategy determine victory
             </p>
           </div>
 
           {/* Decorative Cards */}
-          <div className="flex justify-center gap-2 mb-12 animate-slide-up">
+          <div className="flex justify-center gap-2 mb-12">
             <PlayingCard suit="spades" rank="A" size="md" className="transform -rotate-12" />
             <PlayingCard suit="hearts" rank="K" size="md" className="transform -rotate-6" />
             <PlayingCard suit="diamonds" rank="Q" size="md" />
@@ -73,35 +69,31 @@ export default function Index() {
 
           {/* Action Cards */}
           <div className="grid md:grid-cols-2 gap-6 mb-8">
-            <Card className="swiss-border bg-card backdrop-blur-sm hover:shadow-glow transition-shadow animate-slide-up" style={{ animationDelay: '0.1s' }}>
+            <Card className="border-primary/30 hover:border-primary hover:shadow-lg transition-all">
               <CardHeader>
-                <CardTitle className="font-serif flex items-center gap-2 text-card-foreground">
+                <CardTitle className="font-serif flex items-center gap-2">
                   <Users className="w-5 h-5 text-primary" />
                   Play Now
                 </CardTitle>
-                <CardDescription>
-                  Start a new game or join an existing lobby
-                </CardDescription>
+                <CardDescription>Start a new game or join an existing lobby</CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
                 <Button className="w-full" size="lg" onClick={() => navigate('/lobby')}>
                   Create Private Game
                 </Button>
-                <Button variant="secondary" className="w-full" size="lg" onClick={() => navigate('/lobby')}>
+                <Button variant="outline" className="w-full" size="lg" onClick={() => navigate('/lobby')}>
                   Join Public Lobby
                 </Button>
               </CardContent>
             </Card>
 
-            <Card className="bg-card backdrop-blur-sm border-border animate-slide-up" style={{ animationDelay: '0.2s' }}>
+            <Card>
               <CardHeader>
-                <CardTitle className="font-serif flex items-center gap-2 text-card-foreground">
+                <CardTitle className="font-serif flex items-center gap-2">
                   <Trophy className="w-5 h-5 text-primary" />
                   Your Stats
                 </CardTitle>
-                <CardDescription>
-                  Track your performance
-                </CardDescription>
+                <CardDescription>Track your performance</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-3 gap-4 text-center">
@@ -123,15 +115,13 @@ export default function Index() {
           </div>
 
           {/* Match History */}
-          <Card className="bg-card backdrop-blur-sm border-border animate-slide-up" style={{ animationDelay: '0.3s' }}>
+          <Card>
             <CardHeader>
-              <CardTitle className="font-serif flex items-center gap-2 text-card-foreground">
+              <CardTitle className="font-serif flex items-center gap-2">
                 <History className="w-5 h-5 text-primary" />
                 Recent Matches
               </CardTitle>
-              <CardDescription>
-                Your game history
-              </CardDescription>
+              <CardDescription>Your game history</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="text-center py-8 text-muted-foreground">
